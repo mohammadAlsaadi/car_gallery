@@ -1,35 +1,63 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/models/carModel.dart';
 import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
 
 class HomePage extends StatefulWidget {
-  final List<CarInfo> cardList = [];
-
-  HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  List<CarInfo> _carList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCars();
+  }
+
+  void _loadCars() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jsonCars = prefs.getString('cars') ?? '[]';
+    List<dynamic> carData = jsonDecode(jsonCars);
+    List<CarInfo> cars = carData.map((car) => CarInfo.fromJson(car)).toList();
+    setState(() {
+      _carList = cars;
+      _isLoading = false;
+    });
+  }
+
+  void _saveCars() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jsonCars = jsonEncode(_carList);
+    prefs.setString('cars', jsonCars);
+  }
+
+  void _removeCar(int index) {
+    setState(() {
+      _carList.removeAt(index);
+    });
+    _saveCars(); // Update the list stored in shared_preferences after removal
+  }
+
   void _navigateToAddCard() async {
     final newCard = await Navigator.pushNamed(context, '/AddPage');
 
     if (newCard != null && newCard is CarInfo) {
       setState(() {
-        widget.cardList.add(newCard);
-        print(widget.cardList);
+        _carList.add(newCard);
       });
+      _saveCars();
     }
   }
 
-  // CarInfo car = CarInfo();
-  // ColorsTheme color = new ColorsTheme();
-
   void _sortCardsById() {
     setState(() {
-      widget.cardList.sort((a, b) => a.carDate.compareTo(b.carDate));
+      _carList.sort((a, b) => a.carDate.compareTo(b.carDate));
     });
   }
 
@@ -47,56 +75,65 @@ class _HomePageState extends State<HomePage> {
             Padding(
               padding: const EdgeInsets.only(left: 85),
               child: TextButton(
-                  onPressed: _sortCardsById,
-                  child: const Text(
-                    "Sort",
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  )),
+                onPressed: _sortCardsById,
+                child: const Text(
+                  "Sort",
+                  style: TextStyle(color: Colors.white, fontSize: 15),
+                ),
+              ),
             ),
           ],
         ),
       ),
-      body: ListView.builder(
-        itemCount: widget.cardList.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              elevation: 15,
-              child: ListTile(
-                leading: Image.asset(carImage),
-                title: Text(widget.cardList[index].carName),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Price : ${widget.cardList[index].carPrice}'),
-                    Text('date : ${widget.cardList[index].carDate}'),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const DetailPage()),
-                  );
-                },
-              ),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListView.builder(
+              itemCount: _carList.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    color: appBarColor,
+                    elevation: 15,
+                    child: ListTile(
+                      leading: Image.asset(carImage),
+                      //title: Text(_carList[index].carName),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_carList[index].carName,
+                              style: TextStyle(color: backgroundColor)),
+                          Text(
+                            'Price : ${_carList[index].carPrice}',
+                            style: TextStyle(color: backgroundColor),
+                          ),
+                          Text('date : ${_carList[index].carDate}',
+                              style: TextStyle(color: backgroundColor)),
+                        ],
+                      ),
+                      trailing: IconButton(
+                        onPressed: () => _removeCar(index),
+                        icon: Icon(
+                          Icons.delete,
+                          color: button,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DetailPage()),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: appBarColor,
-        onPressed: () {
-          Navigator.pushNamed(context, '/AddPage').then((newCard) {
-            // Handle the returned new card here.
-            // You can update the card list in the CardListPage.
-            if (newCard != null && newCard is CarInfo) {
-              setState(() {
-                widget.cardList.add(newCard);
-              });
-            }
-          });
-        },
+        onPressed: _navigateToAddCard,
         child: const Icon(
           Icons.add,
           color: button,
@@ -105,105 +142,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-
-/*
- IconButton(
-                
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.add_circle_outline,
-                    color: Color(color.appBarColor),
-                    size: 35,
-                  )),
-                  */
-
-
-
-
-
-
-                  /*
-                  ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            Card(
-              elevation: 4.0,
-              child: ListTile(
-                leading: Image.asset(carImage),
-                title: const Text(' Dodge'),
-                subtitle: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('29,000.00 JD'),
-                    Text('2010'),
-                  ],
-                ),
-                trailing: IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const DetailPage()),
-                    );
-                  },
-                  icon: const Icon(Icons.arrow_forward_ios),
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const DetailPage()),
-                  );
-                },
-              ),
-            ),
-            Card(
-              elevation: 4.0,
-              child: ListTile(
-                leading: Image.asset(carImage),
-                title: const Text(""),
-                subtitle: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('29,000.00 JD'),
-                    Text('2010'),
-                  ],
-                ),
-                trailing: IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const DetailPage()),
-                    );
-                  },
-                  icon: const Icon(Icons.arrow_forward_ios),
-                ),
-                onTap: () {
-                  // Handle card tap
-                  print('Card tapped!');
-                },
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 380),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AddPage()),
-                    );
-                  },
-                  backgroundColor: appBarColor,
-                  child: const Icon(
-                    Icons.add_circle_outline_sharp,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ), 
-        */

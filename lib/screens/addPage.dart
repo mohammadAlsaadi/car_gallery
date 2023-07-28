@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:task1/Colors/colorTheme.dart';
 import 'package:task1/models/carModel.dart';
@@ -19,6 +21,7 @@ class _AddPageState extends State<AddPage> {
   //CarInfo car = CarInfo();
 
   // ColorsTheme color = new ColorsTheme();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,7 +148,9 @@ class _AddPageState extends State<AddPage> {
                             carName: carName,
                             carPrice: carPrice,
                             carDate: carDate);
+
                         Navigator.pop(context, newCar);
+
                         print(newCar);
                         const snackBar = SnackBar(
                           content: Text('Car added!'),
