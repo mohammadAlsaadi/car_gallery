@@ -2,18 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:task1/Colors/colorTheme.dart';
 import 'package:task1/models/carModel.dart';
 
-List<CarInfo> _cardList = [];
-
-class NavigationUtils {
-  static Future<void> navigateToAddCard(
-      BuildContext context, List<CarInfo> cardList) async {
-    final newCard = await Navigator.pushNamed(context, '/AddPage') as CarInfo?;
-    if (newCard != null) {
-      cardList.add(newCard);
-    }
-  }
-}
-
 class AddPage extends StatefulWidget {
   const AddPage({super.key});
 
@@ -158,6 +146,7 @@ class _AddPageState extends State<AddPage> {
                             carPrice: carPrice,
                             carDate: carDate);
                         Navigator.pop(context, newCar);
+                        print(newCar);
                         const snackBar = SnackBar(
                           content: Text('Car added!'),
                         );

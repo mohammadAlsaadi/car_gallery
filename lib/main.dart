@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/HomePage',
       routes: {
-        '/HomePage': (context) => HomePage(cardList: const []),
+        '/HomePage': (context) => HomePage(),
         '/AddPage': (context) => const AddPage(),
       },
       onGenerateRoute: (settings) {

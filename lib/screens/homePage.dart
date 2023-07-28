@@ -4,9 +4,9 @@ import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
 
 class HomePage extends StatefulWidget {
-  List<CarInfo> cardList = [];
+  final List<CarInfo> cardList = [];
 
-  HomePage({super.key, required this.cardList});
+  HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -19,6 +19,7 @@ class _HomePageState extends State<HomePage> {
     if (newCard != null && newCard is CarInfo) {
       setState(() {
         widget.cardList.add(newCard);
+        print(widget.cardList);
       });
     }
   }
