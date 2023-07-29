@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:task1/Colors/colorTheme.dart';
-import 'package:task1/models/carModel.dart';
+import 'package:task1/models/userAuthModel.dart';
 
-class AddPage extends StatefulWidget {
-  const AddPage({super.key});
+import '../../Colors/colorTheme.dart';
+
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
 
   @override
-  State<AddPage> createState() => _AddPageState();
+  State<SignUp> createState() => _SignUpState();
 }
 
-class _AddPageState extends State<AddPage> {
+class _SignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _carNameController = TextEditingController();
-  final TextEditingController _PriceController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
-
-  //CarInfo car = CarInfo();
-
-  // ColorsTheme color = new ColorsTheme();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +26,10 @@ class _AddPageState extends State<AddPage> {
           children: [
             Padding(
               padding: EdgeInsets.only(left: 70),
-              child: Text("Add page "),
+              child: Text(
+                "Sign Up",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             )
           ],
         ),
@@ -43,25 +43,25 @@ class _AddPageState extends State<AddPage> {
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
                     validator: (value) =>
-                        value!.isEmpty ? "Enter a car name ! " : null,
+                        value!.isEmpty ? "Enter an email ! " : null,
                     decoration: const InputDecoration(
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15.0)),
                       ),
-                      labelText: "name car",
+                      labelText: "Email",
                       labelStyle: TextStyle(
                         color: appBarColor,
                       ),
                       isDense: true,
                       prefixIcon: Icon(
-                        Icons.car_crash,
+                        Icons.email_outlined,
                         color: appBarColor,
                       ),
                     ),
-                    keyboardType: TextInputType.name,
+                    keyboardType: TextInputType.emailAddress,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     onSaved: (value) {
-                      _carNameController.text = value!;
+                      _emailController.text = value!;
                     },
                   ),
                 ),
@@ -70,7 +70,7 @@ class _AddPageState extends State<AddPage> {
                   child: TextFormField(
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter the description of your vehicle';
+                        return 'please enter pass';
                       }
                       return null;
                     },
@@ -78,20 +78,20 @@ class _AddPageState extends State<AddPage> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15.0)),
                       ),
-                      labelText: "car price",
+                      labelText: "Password",
                       labelStyle: TextStyle(
                         color: appBarColor,
                       ),
                       isDense: true,
                       prefixIcon: Icon(
-                        Icons.attach_money_rounded,
+                        Icons.password,
                         color: appBarColor,
                       ),
                     ),
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.visiblePassword,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     onSaved: (value) {
-                      _PriceController.text = value!;
+                      _passwordController.text = value!;
                     },
                   ),
                 ),
@@ -99,25 +99,25 @@ class _AddPageState extends State<AddPage> {
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
                     validator: (value) =>
-                        value!.isEmpty ? "Enter an date ! " : null,
+                        value!.isEmpty ? "Enter a name ! " : null,
                     decoration: const InputDecoration(
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15.0)),
                       ),
-                      labelText: " car date ",
+                      labelText: " User name ",
                       labelStyle: TextStyle(
                         color: appBarColor,
                       ),
                       isDense: true,
                       prefixIcon: Icon(
-                        Icons.date_range,
+                        Icons.person_2_rounded,
                         color: appBarColor,
                       ),
                     ),
-                    keyboardType: TextInputType.datetime,
+                    keyboardType: TextInputType.name,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     onSaved: (value) {
-                      _dateController.text = value!;
+                      _nameController.text = value!;
                     },
                   ),
                 ),
@@ -138,20 +138,20 @@ class _AddPageState extends State<AddPage> {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
 
-                        String carName = _carNameController.text;
-                        String carPrice = _PriceController.text;
-                        String carDate = _dateController.text;
+                        // String userEmail = _emailController.text;
+                        // String userPassword = _passwordController.text;
+                        // String userName = _nameController.text;
 
-                        CarInfo newCar = CarInfo(
-                            carName: carName,
-                            carPrice: carPrice,
-                            carDate: carDate);
+                        // UserAuth newUserSignup = UserAuth(
+                        //     email: userEmail,
+                        //     password: userPassword,
+                        //     name: userName);
 
-                        Navigator.pop(context, newCar);
+                        //Navigator.pop(context, newUserSignup);
 
-                        print(newCar);
+                        //print(newUserSignup);
                         const snackBar = SnackBar(
-                          content: Text('Car added!'),
+                          content: Text('sign up  seccessed'),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       }
@@ -160,48 +160,12 @@ class _AddPageState extends State<AddPage> {
                       padding: EdgeInsets.only(
                           left: 20, right: 20, top: 10, bottom: 10),
                       child: Text(
-                        "Add car ",
+                        "Sign Up",
                         style: TextStyle(fontSize: 18),
                       ),
                     ),
                   ),
                 ),
-                // Container(
-                //   child: ListView.builder(
-                //     itemCount: _cardList.length,
-                //     itemBuilder: (context, index) {
-                //       return Card(
-                //         elevation: 4.0,
-                //         child: ListTile(
-                //           leading: Image.asset(carImage),
-                //           title: Text(_cardList[index].carName),
-                //           subtitle: Column(
-                //             crossAxisAlignment: CrossAxisAlignment.start,
-                //             children: [
-                //               Text(_cardList[index].carPrice),
-                //               Text(_cardList[index].carDate),
-                //             ],
-                //           ),
-                //           trailing: IconButton(
-                //             onPressed: () {
-                //               Navigator.push(
-                //                 context,
-                //                 MaterialPageRoute(
-                //                     builder: (context) =>
-                //                         const DetailPage()),
-                //               );
-                //             },
-                //             icon: const Icon(Icons.arrow_forward_ios),
-                //           ),
-                //           onTap: () {
-                //             // Handle card tap
-                //             print('Card tapped!');
-                //           },
-                //         ),
-                //       );
-                //     },
-                //   ),
-                // )
               ],
             ),
           )),

@@ -5,6 +5,7 @@ class CarInfo {
 
   CarInfo(
       {required this.carName, required this.carPrice, required this.carDate});
+
   Map<String, dynamic> toJson() {
     return {
       'carName': carName,

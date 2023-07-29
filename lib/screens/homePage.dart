@@ -1,16 +1,49 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/models/carModel.dart';
+import 'package:task1/screens/auth/signup_page.dart';
 import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
 
+import 'editPage.dart';
+
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  void _navigateToEditPage(BuildContext context, CarInfo car) async {
+    final updatedCar = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditPage(car: car),
+      ),
+    );
+
+    if (updatedCar != null && updatedCar is CarInfo) {
+      // Update the car in the list
+      setState(() {
+        int index = _carList.indexWhere((element) => element == car);
+        if (index != -1) {
+          _carList[index] = updatedCar;
+          _saveCars(); // Save the updated list of cars to storage
+        }
+      });
+    }
+  }
+
+  //_______________________
+  void updateCarInfo(int index, CarInfo updatedCar) {
+    setState(() {
+      _carList[index] = updatedCar;
+    });
+  }
+
   List<CarInfo> _carList = [];
   bool _isLoading = true;
 
@@ -52,6 +85,7 @@ class _HomePageState extends State<HomePage> {
         _carList.add(newCard);
       });
       _saveCars();
+      // print(_carList);
     }
   }
 
@@ -61,15 +95,97 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _navigateToDetailPage(BuildContext context, CarInfo car) async {
+    final updatedCar = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailPage(
+          car: car,
+        ),
+      ),
+    );
+
+    if (updatedCar != null && updatedCar is CarInfo) {
+      // Find the index of the edited car and update the list
+      int index = _carList.indexWhere((element) => element == car);
+      if (index != -1) {
+        setState(() {
+          _carList[index] = updatedCar;
+        });
+        _saveCars(); // Save the updated list of cars to storage
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        backgroundColor: appBarColor,
+        child: ListView(children: [
+          const Padding(
+            padding: EdgeInsets.only(),
+            child: DrawerHeader(
+              padding: EdgeInsets.all(15),
+              child:
+                  Text("More option", style: TextStyle(color: backgroundColor)),
+            ),
+          ),
+          const ListTile(
+            title: Row(
+              children: [
+                Icon(
+                  Icons.person,
+                  color: backgroundColor,
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Text("Profile", style: TextStyle(color: backgroundColor)),
+              ],
+            ),
+            onTap: null,
+          ),
+          ListTile(
+            title: const Row(
+              children: [
+                Icon(Icons.settings, color: backgroundColor),
+                SizedBox(
+                  width: 20,
+                ),
+                Text("Setting", style: TextStyle(color: backgroundColor)),
+              ],
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SignUp(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: Row(
+              children: [
+                Icon(Icons.logout_outlined, color: backgroundColor),
+                SizedBox(
+                  width: 20,
+                ),
+                Text("Logout", style: TextStyle(color: backgroundColor)),
+              ],
+            ),
+            onTap: null,
+          )
+        ]),
+      ),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: appBarColor,
         title: Row(
           children: [
             const Padding(
-              padding: EdgeInsets.only(left: 120),
+              padding: EdgeInsets.only(left: 60),
               child: Text("Car Show"),
             ),
             Padding(
@@ -78,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: _sortCardsById,
                 child: const Text(
                   "Sort",
-                  style: TextStyle(color: Colors.white, fontSize: 15),
+                  style: TextStyle(color: button, fontSize: 15),
                 ),
               ),
             ),
@@ -86,7 +202,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: _isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : ListView.builder(
@@ -98,35 +214,53 @@ class _HomePageState extends State<HomePage> {
                     color: appBarColor,
                     elevation: 15,
                     child: ListTile(
-                      leading: Image.asset(carImage),
-                      //title: Text(_carList[index].carName),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(_carList[index].carName,
-                              style: TextStyle(color: backgroundColor)),
-                          Text(
-                            'Price : ${_carList[index].carPrice}',
-                            style: TextStyle(color: backgroundColor),
-                          ),
-                          Text('date : ${_carList[index].carDate}',
-                              style: TextStyle(color: backgroundColor)),
-                        ],
-                      ),
-                      trailing: IconButton(
-                        onPressed: () => _removeCar(index),
-                        icon: Icon(
-                          Icons.delete,
-                          color: button,
+                        leading: Image.asset("images/car.png"),
+                        //title: Text(_carList[index].carName),
+                        subtitle: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(_carList[index].carName,
+                                    style: const TextStyle(
+                                        color: backgroundColor)),
+                                Text(
+                                  'Price : ${_carList[index].carPrice}',
+                                  style:
+                                      const TextStyle(color: backgroundColor),
+                                ),
+                                Text('date : ${_carList[index].carDate}',
+                                    style: const TextStyle(
+                                        color: backgroundColor)),
+                              ],
+                            ),
+                          ],
                         ),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DetailPage()),
-                        );
-                      },
-                    ),
+                        trailing: Stack(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                _navigateToEditPage(context, _carList[index]);
+                              },
+                              icon: const Icon(
+                                Icons.edit,
+                                color: button,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 50),
+                              child: IconButton(
+                                onPressed: () => _removeCar(index),
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: button,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        onTap: () =>
+                            _navigateToDetailPage(context, _carList[index])),
                   ),
                 );
               },
