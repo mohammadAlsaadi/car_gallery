@@ -6,6 +6,7 @@ import 'package:task1/models/carModel.dart';
 import 'package:task1/screens/auth/signup_page.dart';
 import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
+import 'package:task1/screens/getStarted.dart';
 
 import 'editPage.dart';
 
@@ -175,7 +176,14 @@ class _HomePageState extends State<HomePage> {
                 Text("Logout", style: TextStyle(color: backgroundColor)),
               ],
             ),
-            onTap: null,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GetStarted(),
+                ),
+              );
+            },
           )
         ]),
       ),

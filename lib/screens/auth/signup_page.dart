@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:task1/models/userAuthModel.dart';
+import 'package:task1/screens/homePage.dart';
 
 import '../../Colors/colorTheme.dart';
 
@@ -16,7 +17,7 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-
+  bool _isObsecure = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,6 +40,9 @@ class _SignUpState extends State<SignUp> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                SizedBox(
+                  height: 70,
+                ),
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
@@ -68,28 +72,72 @@ class _SignUpState extends State<SignUp> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
+                    obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'please enter pass';
                       }
                       return null;
                     },
-                    decoration: const InputDecoration(
-                      focusedBorder: OutlineInputBorder(
+                    decoration: InputDecoration(
+                      focusedBorder: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15.0)),
                       ),
                       labelText: "Password",
+                      labelStyle: const TextStyle(
+                        color: appBarColor,
+                      ),
+                      isDense: true,
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isObsecure = !_isObsecure;
+                            });
+                          },
+                          icon: Icon(_isObsecure
+                              ? Icons.visibility
+                              : Icons.visibility_off)),
+                    ),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    keyboardType: TextInputType.visiblePassword,
+                    onSaved: (value) {
+                      _passwordController.text = value!;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: TextFormField(
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'please enter pass';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                      ),
+                      labelText: "confirm Password",
                       labelStyle: TextStyle(
                         color: appBarColor,
                       ),
                       isDense: true,
-                      prefixIcon: Icon(
-                        Icons.password,
-                        color: appBarColor,
-                      ),
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isObsecure = !_isObsecure;
+                            });
+                          },
+                          icon: Icon(_isObsecure
+                              ? Icons.visibility
+                              : Icons.visibility_off)),
                     ),
-                    keyboardType: TextInputType.visiblePassword,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
+                    keyboardType: TextInputType.visiblePassword,
                     onSaved: (value) {
                       _passwordController.text = value!;
                     },
@@ -122,7 +170,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 0),
+                  padding: const EdgeInsets.only(left: 0, top: 70),
                   child: ElevatedButton(
                     style: ButtonStyle(
                       foregroundColor: MaterialStateProperty.all<Color>(white),
@@ -154,6 +202,12 @@ class _SignUpState extends State<SignUp> {
                           content: Text('sign up  seccessed'),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomePage(),
+                          ),
+                        );
                       }
                     },
                     child: const Padding(

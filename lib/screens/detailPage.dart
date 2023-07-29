@@ -27,8 +27,11 @@ class _DetailPageState extends State<DetailPage> {
         screenWidth > 600 ? screenWidth * 0.6 : screenWidth * 0.8;
     final fontStyleApp =
         TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold);
+    final fontStyleApp2 = TextStyle(
+        fontSize: fontSize, fontWeight: FontWeight.bold, color: button);
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: appBarColor,
         title: Row(
@@ -58,30 +61,45 @@ class _DetailPageState extends State<DetailPage> {
               const SizedBox(
                 height: 70,
               ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: labelText,
+              Padding(
+                padding: const EdgeInsets.all(30),
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: appBarColor),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 100, bottom: 100),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: labelText,
+                            ),
+                            Text(
+                              'price :    ${widget.car.carPrice}',
+                              style: fontStyleApp2,
+                            )
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 70,
+                        ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: labelText,
+                            ),
+                            Text(
+                              'Date :    ${widget.car.carDate}',
+                              style: fontStyleApp2,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  Text(
-                    'price :    ${widget.car.carPrice}',
-                    style: fontStyleApp,
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 70,
-              ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: labelText,
-                  ),
-                  Text(
-                    'Date :    ${widget.car.carDate}',
-                    style: fontStyleApp,
-                  ),
-                ],
+                ),
               ),
             ],
           ),
