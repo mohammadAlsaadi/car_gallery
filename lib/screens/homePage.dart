@@ -7,6 +7,7 @@ import 'package:task1/screens/auth/signup_page.dart';
 import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
 import 'package:task1/screens/getStarted.dart';
+import 'package:task1/screens/profile.dart';
 
 import 'editPage.dart';
 
@@ -132,8 +133,8 @@ class _HomePageState extends State<HomePage> {
                   Text("More option", style: TextStyle(color: backgroundColor)),
             ),
           ),
-          const ListTile(
-            title: Row(
+          ListTile(
+            title: const Row(
               children: [
                 Icon(
                   Icons.person,
@@ -145,7 +146,14 @@ class _HomePageState extends State<HomePage> {
                 Text("Profile", style: TextStyle(color: backgroundColor)),
               ],
             ),
-            onTap: null,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Profile(),
+                ),
+              );
+            },
           ),
           ListTile(
             title: const Row(
