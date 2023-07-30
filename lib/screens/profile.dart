@@ -15,8 +15,8 @@ class _ProfileState extends State<Profile> {
       backgroundColor: appBarColor,
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: Padding(
-          padding: const EdgeInsets.only(left: 70),
+        title: const Padding(
+          padding: EdgeInsets.only(left: 70),
           child: Text("User Profile"),
         ),
       ),

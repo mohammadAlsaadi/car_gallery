@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Colors/colorTheme.dart';
 import '../homePage.dart';
@@ -11,11 +14,20 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  Future<Map<String, dynamic>?> loadSignUpData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? signUpJson = prefs.getString('signUpData');
+    if (signUpJson != null) {
+      return json.decode(signUpJson);
+    }
+    return null;
+  }
+
+  //___________________________________
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
   bool _isObsecure = true;
   @override
   Widget build(BuildContext context) {
@@ -39,7 +51,7 @@ class _LoginState extends State<Login> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 70,
                 ),
                 Padding(
@@ -106,32 +118,6 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: TextFormField(
-                    validator: (value) =>
-                        value!.isEmpty ? "Enter a name ! " : null,
-                    decoration: const InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                      ),
-                      labelText: " User name ",
-                      labelStyle: TextStyle(
-                        color: appBarColor,
-                      ),
-                      isDense: true,
-                      prefixIcon: Icon(
-                        Icons.person_2_rounded,
-                        color: appBarColor,
-                      ),
-                    ),
-                    keyboardType: TextInputType.name,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    onSaved: (value) {
-                      _nameController.text = value!;
-                    },
-                  ),
-                ),
-                Padding(
                   padding: const EdgeInsets.only(left: 0, top: 70),
                   child: ElevatedButton(
                     style: ButtonStyle(
@@ -145,6 +131,53 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+
+                        Map<String, dynamic>? signUpData =
+                            await loadSignUpData();
+                        if (signUpData != null &&
+                            signUpData['email'] == _emailController.text &&
+                            signUpData['password'] ==
+                                _passwordController.text) {
+                          // Login successful, navigate to the home page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomePage(),
+                            ),
+                          );
+                        } else {
+                          // Login failed, show an error message
+                          const snackBar = SnackBar(
+                            content: Text(
+                                'Invalid credentials. Please check your email and password.'),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }
+                      }
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.only(
+                          left: 20, right: 20, top: 10, bottom: 10),
+                      child: Text(
+                        "Login",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )),
+    );
+  }
+}
+
+
+
+
+/*
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
 
@@ -167,24 +200,8 @@ class _LoginState extends State<Login> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HomePage(),
+                            builder: (context) => const HomePage(),
                           ),
                         );
                       }
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.only(
-                          left: 20, right: 20, top: 10, bottom: 10),
-                      child: Text(
-                        "Login",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )),
-    );
-  }
-}
+                      */

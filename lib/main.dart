@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:task1/screens/addPage.dart';
+import 'package:task1/screens/auth/login_page.dart';
+import 'package:task1/screens/getStarted.dart';
 import 'package:task1/screens/homePage.dart';
 
 void main() {
@@ -13,10 +15,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/HomePage',
+      initialRoute: '/GetStarted',
       routes: {
-        '/HomePage': (context) => HomePage(),
+        '/GetStarted': (context) => const GetStarted(),
+        '/HomePage': (context) => const HomePage(),
         '/AddPage': (context) => const AddPage(),
+        '/Login': (context) => const Login(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/AddPage') {

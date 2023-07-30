@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/models/carModel.dart';
+import 'package:task1/screens/auth/login_page.dart';
 import 'package:task1/screens/auth/signup_page.dart';
 import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
@@ -18,7 +19,25 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+enum SortOption {
+  date,
+  name,
+  price,
+}
+
 class _HomePageState extends State<HomePage> {
+  //___________________
+
+  void _handleLogout(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const Login(),
+      ),
+    );
+  }
+
+  //_____________________nav Edit
   void _navigateToEditPage(BuildContext context, CarInfo car) async {
     final updatedCar = await Navigator.push(
       context,
@@ -91,7 +110,19 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _sortCardsById() {
+  void _sortCardsByPrice() {
+    setState(() {
+      _carList.sort((a, b) => a.carDate.compareTo(b.carDate));
+    });
+  }
+
+  void _sortCardsByLetters() {
+    setState(() {
+      _carList.sort((a, b) => a.carDate.compareTo(b.carDate));
+    });
+  }
+
+  void _sortCardsByDate() {
     setState(() {
       _carList.sort((a, b) => a.carDate.compareTo(b.carDate));
     });
@@ -116,6 +147,122 @@ class _HomePageState extends State<HomePage> {
         });
         _saveCars(); // Save the updated list of cars to storage
       }
+    }
+  }
+  // Default selected option
+
+  SortOption? selectedOption;
+
+  void _sortCards() {
+    if (selectedOption == SortOption.date) {
+      setState(() {
+        _carList.sort((a, b) => a.carDate.compareTo(b.carDate));
+      });
+    } else if (selectedOption == SortOption.name) {
+      setState(() {
+        _carList.sort((a, b) => a.carName.compareTo(b.carName));
+      });
+    } else if (selectedOption == SortOption.price) {
+      setState(() {
+        _carList.sort((a, b) => a.carPrice.compareTo(b.carPrice));
+      });
+    }
+  }
+
+  //__________________++++++++++++++___________________
+  Future<void> _showSortDialog(BuildContext context) async {
+    SortOption? newSelectedOption = await showDialog<SortOption>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: appBarColor,
+          title: Padding(
+            padding: const EdgeInsets.only(
+                left: 10, top: 10, right: 150, bottom: 50),
+            child: Center(
+              child: Text(
+                'Choose One',
+                style: TextStyle(color: button),
+              ),
+            ),
+          ),
+          content: Padding(
+            padding: const EdgeInsets.only(bottom: 20, right: 50),
+            child: Container(
+              width: 100,
+              height: 40,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(0), color: button),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 50),
+                child: DropdownButton<SortOption>(
+                  underline: SizedBox.shrink(),
+                  iconEnabledColor: appBarColor,
+                  iconDisabledColor: appBarColor,
+                  dropdownColor: button,
+                  focusColor: backgroundColor,
+                  onChanged: (SortOption? newValue) {
+                    setState(() {
+                      selectedOption = newValue;
+                    });
+                  },
+                  value: selectedOption,
+                  items: [
+                    DropdownMenuItem(
+                      value: SortOption.date,
+                      child: Text(
+                        'by Date',
+                        style: TextStyle(color: appBarColor),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: SortOption.name,
+                      child: Text(
+                        'by Car Name',
+                        style: TextStyle(color: appBarColor),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: SortOption.price,
+                      child: Text(
+                        'by Price',
+                        style: TextStyle(color: appBarColor),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: button),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                _sortCards();
+                Navigator.pop(context);
+              },
+              child: Container(
+                child: Text(
+                  'Sort',
+                  style: TextStyle(color: button),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newSelectedOption != null) {
+      selectedOption = newSelectedOption;
     }
   }
 
@@ -150,7 +297,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Profile(),
+                  builder: (context) => const Profile(),
                 ),
               );
             },
@@ -169,13 +316,13 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SignUp(),
+                  builder: (context) => const SignUp(),
                 ),
               );
             },
           ),
           ListTile(
-            title: Row(
+            title: const Row(
               children: [
                 Icon(Icons.logout_outlined, color: backgroundColor),
                 SizedBox(
@@ -185,12 +332,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GetStarted(),
-                ),
-              );
+              _handleLogout(context);
             },
           )
         ]),
@@ -204,16 +346,31 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.only(left: 60),
               child: Text("Car Show"),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 85),
-              child: TextButton(
-                onPressed: _sortCardsById,
-                child: const Text(
-                  "Sort",
-                  style: TextStyle(color: button, fontSize: 15),
-                ),
+            SizedBox(
+              width: 100,
+            ),
+
+            FloatingActionButton(
+              elevation: 0,
+              backgroundColor: appBarColor,
+              onPressed: () {
+                _showSortDialog(context);
+              },
+              child: Icon(
+                Icons.sort,
+                color: button,
               ),
             ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 85),
+            //   child: TextButton(
+            //     onPressed: _sortCardsByPrice,
+            //     child: const Text(
+            //       "Sort",
+            //       style: TextStyle(color: button, fontSize: 15),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

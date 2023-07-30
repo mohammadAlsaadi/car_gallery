@@ -39,7 +39,7 @@ class _GetStartedState extends State<GetStarted> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SignUp(),
+                      builder: (context) => const SignUp(),
                     ),
                   );
                 },
@@ -73,7 +73,7 @@ class _GetStartedState extends State<GetStarted> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Login(),
+                      builder: (context) => const Login(),
                     ),
                   );
                 },

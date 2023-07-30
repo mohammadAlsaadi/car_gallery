@@ -3,11 +3,12 @@ import 'package:task1/Colors/colorTheme.dart';
 import 'package:task1/models/carModel.dart';
 
 class EditPage extends StatefulWidget {
-  CarInfo car;
+  final CarInfo car;
 
-  EditPage({required this.car});
+  const EditPage({super.key, required this.car});
 
   @override
+  // ignore: library_private_types_in_public_api
   _EditPageState createState() => _EditPageState();
 }
 
@@ -32,14 +33,14 @@ class _EditPageState extends State<EditPage> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: Text('Edit Car Details'),
+        title: const Text('Edit Car Details'),
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 100,
               ),
               Padding(
@@ -48,7 +49,7 @@ class _EditPageState extends State<EditPage> {
                   controller: _carNameController,
                   validator: (value) =>
                       value!.isEmpty ? "Enter a car name!" : null,
-                  decoration: InputDecoration(labelText: "Car Name"),
+                  decoration: const InputDecoration(labelText: "Car Name"),
                 ),
               ),
               Padding(
@@ -57,7 +58,7 @@ class _EditPageState extends State<EditPage> {
                   controller: _priceController,
                   validator: (value) =>
                       value!.isEmpty ? "Enter the car price!" : null,
-                  decoration: InputDecoration(labelText: "Car Price"),
+                  decoration: const InputDecoration(labelText: "Car Price"),
                 ),
               ),
               Padding(
@@ -65,14 +66,14 @@ class _EditPageState extends State<EditPage> {
                 child: TextFormField(
                   controller: _dateController,
                   validator: (value) => value!.isEmpty ? "Enter a date!" : null,
-                  decoration: InputDecoration(labelText: "Car Date"),
+                  decoration: const InputDecoration(labelText: "Car Date"),
                 ),
               ),
               ElevatedButton(
                 style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(appBarColor),
-                    textStyle:
-                        MaterialStateProperty.all(TextStyle(fontSize: 20))),
+                    textStyle: MaterialStateProperty.all(
+                        const TextStyle(fontSize: 20))),
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     // Update car data and pop the EditPage
@@ -84,7 +85,7 @@ class _EditPageState extends State<EditPage> {
                     Navigator.pop(context, updatedCar);
                   }
                 },
-                child: Text(
+                child: const Text(
                   'Save',
                   style: TextStyle(color: button),
                 ),

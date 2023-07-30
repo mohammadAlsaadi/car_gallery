@@ -1,5 +1,6 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:task1/models/userAuthModel.dart';
 import 'package:task1/screens/homePage.dart';
 
 import '../../Colors/colorTheme.dart';
@@ -12,6 +13,20 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  void saveSignUpData() {
+    final signUpData = {
+      'email': _emailController.text,
+      'password': _passwordController.text,
+      'name': _nameController.text,
+    };
+    final signUpJson = json.encode(signUpData);
+
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('signUpData', signUpJson);
+    });
+  }
+
+  //_______________________
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
@@ -40,7 +55,7 @@ class _SignUpState extends State<SignUp> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 70,
                 ),
                 Padding(
@@ -117,11 +132,11 @@ class _SignUpState extends State<SignUp> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
+                      focusedBorder: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15.0)),
                       ),
                       labelText: "confirm Password",
-                      labelStyle: TextStyle(
+                      labelStyle: const TextStyle(
                         color: appBarColor,
                       ),
                       isDense: true,
@@ -205,7 +220,7 @@ class _SignUpState extends State<SignUp> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HomePage(),
+                            builder: (context) => const HomePage(),
                           ),
                         );
                       }

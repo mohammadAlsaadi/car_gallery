@@ -2,20 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:task1/Colors/colorTheme.dart';
 import 'package:task1/models/carModel.dart';
 
-import 'editPage.dart';
+class DetailPage extends StatelessWidget {
+  final CarInfo car;
+  const DetailPage({super.key, required this.car});
 
-class DetailPage extends StatefulWidget {
-  CarInfo car;
-  DetailPage({super.key, required this.car});
-
-  @override
-  State<DetailPage> createState() => _DetailPageState();
-}
-
-class _DetailPageState extends State<DetailPage> {
 //CarInfo car = CarInfo(car);
-  // ColorsTheme color = new ColorsTheme();
-
   @override
   Widget build(BuildContext context) {
 //________________________________________
@@ -25,8 +16,8 @@ class _DetailPageState extends State<DetailPage> {
     final double fontSize = screenSize.width * 0.04;
     double imageWidth =
         screenWidth > 600 ? screenWidth * 0.6 : screenWidth * 0.8;
-    final fontStyleApp =
-        TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold);
+    // final fontStyleApp =
+    //     TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold);
     final fontStyleApp2 = TextStyle(
         fontSize: fontSize, fontWeight: FontWeight.bold, color: button);
 
@@ -39,7 +30,7 @@ class _DetailPageState extends State<DetailPage> {
             Padding(
               padding: const EdgeInsets.only(left: 50),
               child: Text(
-                widget.car.carName,
+                car.carName,
                 style: TextStyle(fontSize: fontSize),
               ),
             )
@@ -77,7 +68,7 @@ class _DetailPageState extends State<DetailPage> {
                               width: labelText,
                             ),
                             Text(
-                              'price :    ${widget.car.carPrice}',
+                              'price :    ${car.carPrice}',
                               style: fontStyleApp2,
                             )
                           ],
@@ -91,7 +82,7 @@ class _DetailPageState extends State<DetailPage> {
                               width: labelText,
                             ),
                             Text(
-                              'Date :    ${widget.car.carDate}',
+                              'Date :    ${car.carDate}',
                               style: fontStyleApp2,
                             ),
                           ],

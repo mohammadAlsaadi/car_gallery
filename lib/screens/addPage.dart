@@ -149,7 +149,7 @@ class _AddPageState extends State<AddPage> {
 
                         Navigator.pop(context, newCar);
 
-                        print(newCar);
+                        // print(newCar);
                         const snackBar = SnackBar(
                           content: Text('Car added!'),
                         );
