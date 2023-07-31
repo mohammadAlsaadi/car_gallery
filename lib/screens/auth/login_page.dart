@@ -1,6 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Colors/colorTheme.dart';
@@ -21,6 +24,27 @@ class _LoginState extends State<Login> {
       return json.decode(signUpJson);
     }
     return null;
+  }
+
+  String? _validateEmail(var value) {
+    if (value.isEmpty) {
+      return 'Email required';
+    }
+
+    // Check if the email contains the "@gmail.com" domain
+    if (!value.contains("@gmail.com")) {
+      return 'Invalid email format. It must be like XX@XX.com';
+    }
+
+    return null; // Return null if the email is valid
+  }
+
+  //_________________pass reqexp
+
+  bool isPasswordValid(String password) {
+    // Password must contain at least one uppercase letter, one special character, and one digit.
+    RegExp regex = RegExp(r'^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$');
+    return regex.hasMatch(password);
   }
 
   //___________________________________
@@ -57,18 +81,21 @@ class _LoginState extends State<Login> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
-                    validator: (value) =>
-                        value!.isEmpty ? "Enter an email ! " : null,
-                    decoration: const InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    validator: _validateEmail,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                       labelText: "Email",
-                      labelStyle: TextStyle(
+                      labelStyle: const TextStyle(
                         color: appBarColor,
                       ),
                       isDense: true,
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.email_outlined,
                         color: appBarColor,
                       ),
@@ -83,16 +110,24 @@ class _LoginState extends State<Login> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
-                    obscureText: true,
+                    controller: _passwordController,
+                    obscureText: _isObsecure,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'please enter pass';
+                      if (value!.isEmpty) {
+                        return 'required ,Please enter a password';
+                      }
+                      if (!isPasswordValid(value)) {
+                        return 'Password must contain at least one uppercase letter,\n one special character, and one digit.';
                       }
                       return null;
                     },
                     decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(),
+                      ),
                       focusedBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                       labelText: "Password",
                       labelStyle: const TextStyle(
@@ -106,7 +141,7 @@ class _LoginState extends State<Login> {
                               _isObsecure = !_isObsecure;
                             });
                           },
-                          icon: Icon(_isObsecure
+                          icon: Icon(!_isObsecure
                               ? Icons.visibility
                               : Icons.visibility_off)),
                     ),
@@ -141,11 +176,12 @@ class _LoginState extends State<Login> {
                             signUpData['password'] ==
                                 _passwordController.text) {
                           // Login successful, navigate to the home page
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const HomePage(),
                             ),
+                            (route) => false,
                           );
                         } else {
                           // Login failed, show an error message

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:task1/Colors/colorTheme.dart';
 import 'package:task1/models/carModel.dart';
@@ -37,62 +39,65 @@ class DetailPage extends StatelessWidget {
           ],
         ),
       ),
-      body: Container(
-        color: backgroundColor,
-        child: Expanded(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 100),
-                child: Image.asset(
-                  "images/car.png",
-                  width: imageWidth,
+      body: SingleChildScrollView(
+        child: Container(
+          color: backgroundColor,
+          child: Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 100),
+                  child: Image.asset(
+                    "images/car.png",
+                    width: imageWidth,
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 70,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(30),
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: appBarColor),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 100, bottom: 100),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: labelText,
-                            ),
-                            Text(
-                              'price :    ${car.carPrice}',
-                              style: fontStyleApp2,
-                            )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 70,
-                        ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: labelText,
-                            ),
-                            Text(
-                              'Date :    ${car.carDate}',
-                              style: fontStyleApp2,
-                            ),
-                          ],
-                        ),
-                      ],
+                const SizedBox(
+                  height: 70,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(30),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: appBarColor),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 40, bottom: 100),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: labelText,
+                              ),
+                              Text(
+                                'price :    ${car.carPrice}',
+                                style: fontStyleApp2,
+                              )
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 70,
+                          ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: labelText,
+                              ),
+                              Text(
+                                'Date :    ${car.carDate}',
+                                style: fontStyleApp2,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

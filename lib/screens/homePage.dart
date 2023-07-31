@@ -1,9 +1,10 @@
+// ignore_for_file: avoid_print, file_names
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/models/carModel.dart';
-import 'package:task1/screens/auth/login_page.dart';
 import 'package:task1/screens/auth/signup_page.dart';
 import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
@@ -29,11 +30,12 @@ class _HomePageState extends State<HomePage> {
   //___________________
 
   void _handleLogout(BuildContext context) {
-    Navigator.push(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => const Login(),
+        builder: (context) => const GetStarted(),
       ),
+      (route) => false,
     );
   }
 
@@ -110,24 +112,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _sortCardsByPrice() {
-    setState(() {
-      _carList.sort((a, b) => a.carDate.compareTo(b.carDate));
-    });
-  }
-
-  void _sortCardsByLetters() {
-    setState(() {
-      _carList.sort((a, b) => a.carDate.compareTo(b.carDate));
-    });
-  }
-
-  void _sortCardsByDate() {
-    setState(() {
-      _carList.sort((a, b) => a.carDate.compareTo(b.carDate));
-    });
-  }
-
   void _navigateToDetailPage(BuildContext context, CarInfo car) async {
     final updatedCar = await Navigator.push(
       context,
@@ -169,6 +153,15 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  //______________for radio
+  // void _sortCartOnChanded(SortOption? option) {
+  //   setState(() {
+  //     selectedOption = option;
+  //   });
+  //   _sortCards();
+  // }
+
+  bool selcet = false;
   //__________________++++++++++++++___________________
   Future<void> _showSortDialog(BuildContext context) async {
     SortOption? newSelectedOption = await showDialog<SortOption>(
@@ -176,9 +169,8 @@ class _HomePageState extends State<HomePage> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: appBarColor,
-          title: Padding(
-            padding: const EdgeInsets.only(
-                left: 10, top: 10, right: 150, bottom: 50),
+          title: const Padding(
+            padding: EdgeInsets.only(left: 10, top: 10, right: 150, bottom: 50),
             child: Center(
               child: Text(
                 'Choose One',
@@ -186,81 +178,84 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          content: Padding(
-            padding: const EdgeInsets.only(bottom: 20, right: 50),
-            child: Container(
-              width: 100,
-              height: 40,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(0), color: button),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 50),
-                child: DropdownButton<SortOption>(
-                  underline: SizedBox.shrink(),
-                  iconEnabledColor: appBarColor,
-                  iconDisabledColor: appBarColor,
-                  dropdownColor: button,
-                  focusColor: backgroundColor,
-                  onChanged: (SortOption? newValue) {
-                    setState(() {
-                      selectedOption = newValue;
-                    });
-                  },
-                  value: selectedOption,
-                  items: [
-                    DropdownMenuItem(
-                      value: SortOption.date,
-                      child: Text(
-                        'by Date',
-                        style: TextStyle(color: appBarColor),
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: SortOption.name,
-                      child: Text(
-                        'by Car Name',
-                        style: TextStyle(color: appBarColor),
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: SortOption.price,
-                      child: Text(
-                        'by Price',
-                        style: TextStyle(color: appBarColor),
-                      ),
-                    ),
-                  ],
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<SortOption>(
+                title: const Text(
+                  'by Date',
+                  style: TextStyle(color: button),
                 ),
+                value: SortOption.date,
+                groupValue: selectedOption,
+                onChanged: (SortOption? value) {
+                  setState(() {
+                    print("******  $value");
+                    selectedOption = value;
+                    print("***selectedOption***  $selectedOption");
+                  });
+                },
+                activeColor: button,
               ),
-            ),
+              RadioListTile<SortOption>(
+                title: const Text(
+                  'by Car Name',
+                  style: TextStyle(color: button),
+                ),
+                value: SortOption.name,
+                groupValue: selectedOption,
+                onChanged: (SortOption? value) {
+                  setState(() {
+                    print("******  $value");
+                    selectedOption = value;
+                  });
+                },
+                activeColor: button,
+              ),
+              RadioListTile<SortOption>(
+                title: const Text(
+                  'by Price',
+                  style: TextStyle(color: button),
+                ),
+                value: SortOption.price,
+                groupValue: selectedOption,
+                onChanged: (SortOption? value) {
+                  setState(() {
+                    print("******  $value");
+                    selectedOption = value;
+                    selcet = true;
+                  });
+                },
+                activeColor: button,
+              ),
+            ],
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(color: button),
               ),
             ),
             TextButton(
-              onPressed: () {
-                _sortCards();
-                Navigator.pop(context);
-              },
-              child: Container(
-                child: Text(
-                  'Sort',
-                  style: TextStyle(color: button),
-                ),
+              onPressed: selectedOption != null
+                  ? () {
+                      Navigator.of(context).pop();
+                      _sortCards();
+                    }
+                  : null,
+              child: const Text(
+                'Sort',
+                style: TextStyle(color: button),
               ),
             ),
           ],
         );
       },
     );
-
     if (newSelectedOption != null) {
       selectedOption = newSelectedOption;
     }
@@ -346,7 +341,7 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.only(left: 60),
               child: Text("Car Show"),
             ),
-            SizedBox(
+            const SizedBox(
               width: 100,
             ),
 
@@ -356,7 +351,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 _showSortDialog(context);
               },
-              child: Icon(
+              child: const Icon(
                 Icons.sort,
                 color: button,
               ),

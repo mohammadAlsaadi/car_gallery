@@ -1,9 +1,15 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
+// ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:task1/screens/homePage.dart';
+// ignore: depend_on_referenced_packages
+import 'package:uuid/uuid.dart';
 
 import '../../Colors/colorTheme.dart';
+import '../../models/userAuthModel.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -13,8 +19,9 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  void saveSignUpData() {
+  void saveSignUpData(UserAuth newUserSignup) {
     final signUpData = {
+      'uid': generateUID(), // Add the generated UID
       'email': _emailController.text,
       'password': _passwordController.text,
       'name': _nameController.text,
@@ -31,8 +38,39 @@ class _SignUpState extends State<SignUp> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confpasswordController = TextEditingController();
+
   final TextEditingController _nameController = TextEditingController();
   bool _isObsecure = true;
+  bool _isObsecure2 = true;
+  //____________________vadidate email
+  String? _validateEmail(var value) {
+    if (value.isEmpty) {
+      return 'Email required';
+    }
+
+    // Check if the email contains the "@gmail.com" domain
+    if (!value.contains("@gmail.com")) {
+      return 'Invalid email format. It must be like XX@XX.com';
+    }
+
+    return null; // Return null if the email is valid
+  }
+
+  //_________________pass reqexp
+
+  bool isPasswordValid(String password) {
+    // Password must contain at least one uppercase letter, one special character, and one digit.
+    RegExp regex = RegExp(r'^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$');
+    return regex.hasMatch(password);
+  }
+
+  String generateUID() {
+    // ignore: prefer_const_constructors
+    final uuid = Uuid();
+    return uuid.v4();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,18 +99,22 @@ class _SignUpState extends State<SignUp> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
-                    validator: (value) =>
-                        value!.isEmpty ? "Enter an email ! " : null,
-                    decoration: const InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    controller: _emailController,
+                    validator: _validateEmail,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                       labelText: "Email",
-                      labelStyle: TextStyle(
+                      labelStyle: const TextStyle(
                         color: appBarColor,
                       ),
                       isDense: true,
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.email_outlined,
                         color: appBarColor,
                       ),
@@ -87,16 +129,24 @@ class _SignUpState extends State<SignUp> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
-                    obscureText: true,
+                    controller: _passwordController,
+                    obscureText: _isObsecure,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'please enter pass';
+                      if (value!.isEmpty) {
+                        return 'required ,Please enter a password';
+                      }
+                      if (!isPasswordValid(value)) {
+                        return 'Password must contain at least one uppercase letter,\n one special character, and one digit.';
                       }
                       return null;
                     },
                     decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(),
+                      ),
                       focusedBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                       labelText: "Password",
                       labelStyle: const TextStyle(
@@ -110,7 +160,7 @@ class _SignUpState extends State<SignUp> {
                               _isObsecure = !_isObsecure;
                             });
                           },
-                          icon: Icon(_isObsecure
+                          icon: Icon(!_isObsecure
                               ? Icons.visibility
                               : Icons.visibility_off)),
                     ),
@@ -124,16 +174,24 @@ class _SignUpState extends State<SignUp> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
-                    obscureText: true,
+                    controller: _confpasswordController,
+                    obscureText: _isObsecure2,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'please enter pass';
+                      if (value!.isEmpty) {
+                        return 'required ,Please enter a password';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match';
                       }
                       return null;
                     },
                     decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(),
+                      ),
                       focusedBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                       labelText: "confirm Password",
                       labelStyle: const TextStyle(
@@ -144,35 +202,40 @@ class _SignUpState extends State<SignUp> {
                       suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {
-                              _isObsecure = !_isObsecure;
+                              _isObsecure2 = !_isObsecure2;
                             });
                           },
-                          icon: Icon(_isObsecure
+                          icon: Icon(!_isObsecure2
                               ? Icons.visibility
                               : Icons.visibility_off)),
                     ),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     keyboardType: TextInputType.visiblePassword,
                     onSaved: (value) {
-                      _passwordController.text = value!;
+                      _confpasswordController.text = value!;
                     },
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
+                    controller: _nameController,
                     validator: (value) =>
-                        value!.isEmpty ? "Enter a name ! " : null,
-                    decoration: const InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        value!.isEmpty ? " name required ! " : null,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                       labelText: " User name ",
-                      labelStyle: TextStyle(
+                      labelStyle: const TextStyle(
                         color: appBarColor,
                       ),
                       isDense: true,
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.person_2_rounded,
                         color: appBarColor,
                       ),
@@ -201,27 +264,35 @@ class _SignUpState extends State<SignUp> {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
 
-                        // String userEmail = _emailController.text;
-                        // String userPassword = _passwordController.text;
-                        // String userName = _nameController.text;
+                        String userUID = generateUID();
 
-                        // UserAuth newUserSignup = UserAuth(
-                        //     email: userEmail,
-                        //     password: userPassword,
-                        //     name: userName);
+                        UserAuth newUserSignup = UserAuth(
+                          uid: userUID,
+                          email: _emailController.text,
+                          password: _passwordController.text,
+                          name: _nameController.text,
+                        );
 
-                        //Navigator.pop(context, newUserSignup);
+                        // Save UID and other user information
+                        saveSignUpData(newUserSignup);
 
-                        //print(newUserSignup);
+                        // Print UID
+                        print(
+                            'Generated UID***************************************: $userUID');
+
+                        print(
+                            'email: ${newUserSignup.email}\npass : ${newUserSignup.password}\n username : ${newUserSignup.name}');
+
                         const snackBar = SnackBar(
-                          content: Text('sign up  seccessed'),
+                          content: Text('Sign up successful'),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const HomePage(),
                           ),
+                          (route) => false,
                         );
                       }
                     },
