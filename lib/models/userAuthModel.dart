@@ -5,13 +5,14 @@ class UserAuth {
   String? email;
   String? password;
   String? name;
+  String? phoneNumber;
 
-  UserAuth({
-    required this.uid, // Include uid in the constructor
-    required this.email,
-    required this.password,
-    required this.name,
-  });
+  UserAuth(
+      {required this.uid, // Include uid in the constructor
+      required this.email,
+      required this.password,
+      required this.name,
+      required this.phoneNumber});
 
   Map<String, dynamic> toJson() {
     return {
@@ -19,6 +20,7 @@ class UserAuth {
       'email': email,
       'password': password,
       'name': name,
+      'phoneNumber': phoneNumber,
     };
   }
 
@@ -28,6 +30,7 @@ class UserAuth {
       email: json['email'],
       password: json['password'],
       name: json['name'],
+      phoneNumber: json['phoneNumber'],
     );
   }
 }

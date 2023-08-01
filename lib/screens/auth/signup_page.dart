@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print
-
 import 'dart:convert';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +9,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../Colors/colorTheme.dart';
 import '../../models/userAuthModel.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -19,6 +19,8 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  FocusNode focusNode = FocusNode();
+//___________________------
   void saveSignUpData(UserAuth newUserSignup) {
     final signUpData = {
       'uid': generateUID(), // Add the generated UID
@@ -39,6 +41,7 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confpasswordController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   final TextEditingController _nameController = TextEditingController();
   bool _isObsecure = true;
@@ -248,7 +251,34 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 0, top: 70),
+                  padding: const EdgeInsets.all(20),
+                  child: IntlPhoneField(
+                    controller: _phoneNumberController,
+                    validator: (value) =>
+                        value == null ? " phone number Required ! " : null,
+                    initialCountryCode: "JO",
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      labelText: 'Phone Number',
+                    ),
+                    languageCode: "en",
+                    onChanged: (phone) {
+                      print(phone.completeNumber);
+                    },
+                    onCountryChanged: (country) {
+                      print('Country changed to: ' + country.name);
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 0, top: 20),
                   child: ElevatedButton(
                     style: ButtonStyle(
                       foregroundColor: MaterialStateProperty.all<Color>(white),
@@ -271,6 +301,7 @@ class _SignUpState extends State<SignUp> {
                           email: _emailController.text,
                           password: _passwordController.text,
                           name: _nameController.text,
+                          phoneNumber: _phoneNumberController.text,
                         );
 
                         // Save UID and other user information
