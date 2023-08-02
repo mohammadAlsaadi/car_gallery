@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+// ignore_for_file: file_names, depend_on_referenced_packages
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CurrentUser {

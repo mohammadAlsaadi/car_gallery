@@ -1,8 +1,13 @@
+// ignore_for_file: unnecessary_import, constant_identifier_names
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RadioGroupWidget extends StatefulWidget {
+  const RadioGroupWidget({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _RadioGroupWidgetState createState() => _RadioGroupWidgetState();
 }
 
@@ -54,7 +59,7 @@ class _RadioGroupWidgetState extends State<RadioGroupWidget> {
         const SizedBox(height: 20),
         Text(
           'Selected Option: $_selectedOption',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ],
     );

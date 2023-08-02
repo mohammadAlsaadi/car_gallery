@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/models/carModel.dart';
+import 'package:task1/screens/addEdit.dart';
 import 'package:task1/screens/auth/signup_page.dart';
 import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
@@ -42,33 +43,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //_____________________nav Edit
-  void _navigateToEditPage(BuildContext context, CarInfo car) async {
-    final updatedCar = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditPage(car: car),
-      ),
-    );
-
-    if (updatedCar != null && updatedCar is CarInfo) {
-      // Update the car in the list
-      setState(() {
-        int index = _carList.indexWhere((element) => element == car);
-        if (index != -1) {
-          _carList[index] = updatedCar;
-          _saveCars(); // Save the updated list of cars to storage
-        }
-      });
-    }
-  }
-
   //_______________________
-  void updateCarInfo(int index, CarInfo updatedCar) {
-    setState(() {
-      _carList[index] = updatedCar;
-    });
-  }
+  // void updateCarInfo(int index, CarInfo updatedCar) {
+  //   setState(() {
+  //     _carList[index] = updatedCar;
+  //   });
+  // }
 
   List<CarInfo> _carList = [];
   bool _isLoading = true;
@@ -101,18 +81,6 @@ class _HomePageState extends State<HomePage> {
       _carList.removeAt(index);
     });
     _saveCars(); // Update the list stored in shared_preferences after removal
-  }
-
-  void _navigateToAddCard() async {
-    final newCard = await Navigator.pushNamed(context, '/AddPage');
-
-    if (newCard != null && newCard is CarInfo) {
-      setState(() {
-        _carList.add(newCard);
-      });
-      _saveCars();
-      // print(_carList);
-    }
   }
 
   void _navigateToDetailPage(BuildContext context, CarInfo car) async {
@@ -156,56 +124,25 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  //______________for radio
-  // void _sortCartOnChanded(SortOption? option) {
-  //   setState(() {
-  //     selectedOption = option;
-  //   });
-  //   _sortCards();
-  // }
-
-  bool selcet = false;
   //__________________++++++++++++++___________________
-  Future<void> _showSortDialog(BuildContext context) async {
-    SortOption? newSelectedOption = await showDialog<SortOption>(
+  void _showSortDialog() async {
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return Dialog(
           backgroundColor: appBarColor,
-          title: const Padding(
-            padding: EdgeInsets.only(left: 10, top: 10, right: 150, bottom: 50),
-            child: Center(
-              child: Text(
-                'Choose One',
-                style: TextStyle(color: button),
-              ),
-            ),
-          ),
-          content: Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ListTile(
-              //   title: Text("value1 "),
-              //   leading: Radio<SortOption>(
-              //       value: SortOption.date,
-              //       groupValue: selectedOption,
-              //       onChanged: (value) {
-              //         setState(() {
-              //           selectedOption = value!;
-              //         });
-              //       }),
-              // ),
-              // ListTile(
-              //   title: Text("value2 "),
-              //   leading: Radio<SortOption>(
-              //       value: SortOption.name,
-              //       groupValue: selectedOption,
-              //       onChanged: (value) {
-              //         setState(() {
-              //           selectedOption = value!;
-              //         });
-              //       }),
-              // )
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Center(
+                  child: Text(
+                    'Choose One',
+                    style: TextStyle(color: button),
+                  ),
+                ),
+              ),
               RadioListTile<SortOption>(
                 title: const Text(
                   'by Date',
@@ -215,9 +152,7 @@ class _HomePageState extends State<HomePage> {
                 groupValue: selectedOption,
                 onChanged: (SortOption? value) {
                   setState(() {
-                    print("******  $value");
                     selectedOption = value;
-                    print("***selectedOption***  $selectedOption");
                   });
                 },
                 activeColor: button,
@@ -231,7 +166,6 @@ class _HomePageState extends State<HomePage> {
                 groupValue: selectedOption,
                 onChanged: (SortOption? value) {
                   setState(() {
-                    print("******  $value");
                     selectedOption = value;
                   });
                 },
@@ -246,43 +180,77 @@ class _HomePageState extends State<HomePage> {
                 groupValue: selectedOption,
                 onChanged: (SortOption? value) {
                   setState(() {
-                    print("******  $value");
                     selectedOption = value;
-                    selcet = true;
                   });
                 },
                 activeColor: button,
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(color: button),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: selectedOption != null
+                        ? () {
+                            Navigator.of(context).pop();
+                            _sortCards();
+                          }
+                        : null,
+                    child: const Text(
+                      'Sort',
+                      style: TextStyle(color: button),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: button),
-              ),
-            ),
-            TextButton(
-              onPressed: selectedOption != null
-                  ? () {
-                      Navigator.of(context).pop();
-                      _sortCards();
-                    }
-                  : null,
-              child: const Text(
-                'Sort',
-                style: TextStyle(color: button),
-              ),
-            ),
-          ],
         );
       },
     );
-    if (newSelectedOption != null) {
-      selectedOption = newSelectedOption;
+  }
+
+  void _navigateToAddEditCard() async {
+    final newCar = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditPage(isEdit: false),
+      ),
+    );
+
+    if (newCar != null && newCar is CarInfo) {
+      setState(() {
+        _carList.add(newCar);
+      });
+      _saveCars();
+    }
+  }
+
+  void _navigateToEditPage1(BuildContext context, CarInfo car) async {
+    final updatedCar = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditPage(isEdit: true, car: car),
+      ),
+    );
+
+    if (updatedCar != null && updatedCar is CarInfo) {
+      // Update the car in the list
+      setState(() {
+        int index = _carList.indexWhere((element) => element == car);
+        if (index != -1) {
+          _carList[index] = updatedCar;
+          _saveCars(); // Save the updated list of cars to storage
+        }
+      });
     }
   }
 
@@ -382,7 +350,7 @@ class _HomePageState extends State<HomePage> {
               elevation: 0,
               backgroundColor: appBarColor,
               onPressed: () {
-                _showSortDialog(context);
+                _showSortDialog();
               },
               child: const Icon(
                 Icons.sort,
@@ -440,9 +408,8 @@ class _HomePageState extends State<HomePage> {
                         trailing: Stack(
                           children: [
                             IconButton(
-                              onPressed: () {
-                                _navigateToEditPage(context, _carList[index]);
-                              },
+                              onPressed: () => _navigateToEditPage1(
+                                  context, _carList[index]),
                               icon: const Icon(
                                 Icons.edit,
                                 color: button,
@@ -468,7 +435,7 @@ class _HomePageState extends State<HomePage> {
             ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: appBarColor,
-        onPressed: _navigateToAddCard,
+        onPressed: _navigateToAddEditCard,
         child: const Icon(
           Icons.add,
           color: button,

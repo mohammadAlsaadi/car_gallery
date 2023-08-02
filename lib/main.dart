@@ -1,6 +1,7 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:task1/screens/addPage.dart';
-import 'package:task1/screens/auth/login_page.dart';
 import 'package:task1/screens/getStarted.dart';
 import 'package:task1/screens/homePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  // ignore: use_key_in_widget_constructors
   const MyApp({Key? key});
   Future<String> getUUID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -24,28 +26,13 @@ class MyApp extends StatelessWidget {
       home: FutureBuilder<String>(
         future: getUUID(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            // Handle the error case here
-            return Scaffold(
-              body: Center(
-                child: Text('Error: ${snapshot.error}'),
-              ),
-            );
+          String? currentUserId = snapshot.data;
+          if (currentUserId != null && currentUserId.isNotEmpty) {
+            // If the currentUserId is not null or empty, show the HomePage
+            return HomePage(currentUserID: currentUserId);
           } else {
-            String? currentUserId = snapshot.data;
-            if (currentUserId != null && currentUserId.isNotEmpty) {
-              // If the currentUserId is not null or empty, show the HomePage
-              return HomePage(currentUserID: currentUserId);
-            } else {
-              // If the currentUserId is null or empty, show the GetStarted page
-              return GetStarted();
-            }
+            // If the currentUserId is null or empty, show the GetStarted page
+            return const GetStarted();
           }
         },
       ),

@@ -179,6 +179,7 @@ class _LoginState extends State<Login> {
                           // Login successful, navigate to the home page
                           CurrentUser currentUser = CurrentUser();
                           currentUser.signUpCurrent(signUpData['uid']);
+                          // ignore: avoid_print
                           print(
                               "\\\\\\\\\\\\\\\\\\______________${signUpData['uid']}////////_________________");
                           Navigator.pushAndRemoveUntil(

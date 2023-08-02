@@ -22,7 +22,8 @@ class _AddPageState extends State<AddPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: appBarColor, title: Text("Edit page ")),
+      appBar:
+          AppBar(backgroundColor: appBarColor, title: const Text("Edit page ")),
       body: Form(
           key: _formKey,
           child: SingleChildScrollView(

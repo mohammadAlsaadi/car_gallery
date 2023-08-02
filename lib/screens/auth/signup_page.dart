@@ -1,12 +1,11 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unused_field, depend_on_referenced_packages
 import 'dart:convert';
-// ignore: depend_on_referenced_packages
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:task1/screens/homePage.dart';
-// ignore: depend_on_referenced_packages
+
 import 'package:uuid/uuid.dart';
-import 'package:provider/provider.dart';
 
 import '../../Colors/colorTheme.dart';
 import '../../models/userAuthModel.dart';
@@ -223,7 +222,7 @@ class _SignUpState extends State<SignUp> {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: Color.fromARGB(255, 236, 236, 236),
+                            color: const Color.fromARGB(255, 236, 236, 236),
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Padding(
@@ -396,7 +395,7 @@ class _SignUpState extends State<SignUp> {
                     ),
                     languageCode: "en",
                     onCountryChanged: (country) {
-                      print('Country changed to: ' + country.name);
+                      print('Country changed to: ${country.name}');
                     },
                   ),
                 ),

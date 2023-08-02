@@ -89,7 +89,7 @@ class _EditPageState extends State<EditPage> {
                 },
                 child: const Text(
                   'Save',
-                  style: TextStyle(color: button),
+                  style: TextStyle(color: backgroundColor),
                 ),
               ),
             ],
