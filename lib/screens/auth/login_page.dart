@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task1/service/currentUser.dart';
 
 import '../../Colors/colorTheme.dart';
 import '../homePage.dart';
@@ -176,10 +177,16 @@ class _LoginState extends State<Login> {
                             signUpData['password'] ==
                                 _passwordController.text) {
                           // Login successful, navigate to the home page
+                          CurrentUser currentUser = CurrentUser();
+                          currentUser.signUpCurrent(signUpData['uid']);
+                          print(
+                              "\\\\\\\\\\\\\\\\\\______________${signUpData['uid']}////////_________________");
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const HomePage(),
+                              builder: (context) => HomePage(
+                                currentUserID: currentUser.currentUserId,
+                              ),
                             ),
                             (route) => false,
                           );

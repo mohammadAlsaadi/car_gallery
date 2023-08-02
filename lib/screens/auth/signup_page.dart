@@ -6,10 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:task1/screens/homePage.dart';
 // ignore: depend_on_referenced_packages
 import 'package:uuid/uuid.dart';
+import 'package:provider/provider.dart';
 
 import '../../Colors/colorTheme.dart';
 import '../../models/userAuthModel.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+
+import '../../service/currentUser.dart';
+
+FocusNode passwordFocusNode = FocusNode();
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -42,11 +47,37 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confpasswordController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  bool phoneHasError = false;
+
+  //_____________________________password __________________________________
+  bool _isPasswordValid = true;
+
+  bool capitalLetterValid = false;
+  bool specialCharacterValid = false;
+  bool numberValid = false;
+
+  bool isPasswordValid(String password) {
+    // Password must contain at least one uppercase letter, one special character, and one digit.
+    RegExp uppercaseRegex = RegExp(r'[A-Z]');
+    RegExp specialCharRegex = RegExp(r'[!@#$%^&*]');
+    RegExp digitRegex = RegExp(r'\d');
+
+    capitalLetterValid = uppercaseRegex.hasMatch(password);
+    specialCharacterValid = specialCharRegex.hasMatch(password);
+    numberValid = digitRegex.hasMatch(password);
+
+    return capitalLetterValid && specialCharacterValid && numberValid;
+  }
 
   final TextEditingController _nameController = TextEditingController();
   bool _isObsecure = true;
   bool _isObsecure2 = true;
-  //____________________vadidate email
+  // void dispose() {
+  //   passwordFocusNode.dispose();
+  //   super.dispose();
+  // }
+
+  //____________________vadidate email_________________________________
   String? _validateEmail(var value) {
     if (value.isEmpty) {
       return 'Email required';
@@ -62,11 +93,11 @@ class _SignUpState extends State<SignUp> {
 
   //_________________pass reqexp
 
-  bool isPasswordValid(String password) {
-    // Password must contain at least one uppercase letter, one special character, and one digit.
-    RegExp regex = RegExp(r'^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$');
-    return regex.hasMatch(password);
-  }
+  // bool isPasswordValid(String password) {
+  //   // Password must contain at least one uppercase letter, one special character, and one digit.
+  //   RegExp regex = RegExp(r'^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$');
+  //   return regex.hasMatch(password);
+  // }
 
   String generateUID() {
     // ignore: prefer_const_constructors
@@ -130,16 +161,23 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.only(
+                      top: 20, left: 20, right: 20, bottom: 10),
                   child: TextFormField(
                     controller: _passwordController,
+                    focusNode: passwordFocusNode,
                     obscureText: _isObsecure,
+                    onChanged: (value) {
+                      setState(() {
+                        _isPasswordValid = isPasswordValid(value);
+                      });
+                    },
                     validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'required ,Please enter a password';
-                      }
-                      if (!isPasswordValid(value)) {
-                        return 'Password must contain at least one uppercase letter,\n one special character, and one digit.';
+                      if (value!.isEmpty ||
+                          capitalLetterValid == false ||
+                          specialCharacterValid == false ||
+                          numberValid == false) {
+                        return 'This feild is required, must contain : ';
                       }
                       return null;
                     },
@@ -156,16 +194,21 @@ class _SignUpState extends State<SignUp> {
                         color: appBarColor,
                       ),
                       isDense: true,
-                      prefixIcon: const Icon(Icons.lock),
+                      prefixIcon: const Icon(
+                        Icons.lock,
+                        color: appBarColor,
+                      ),
                       suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {
                               _isObsecure = !_isObsecure;
                             });
                           },
-                          icon: Icon(!_isObsecure
-                              ? Icons.visibility
-                              : Icons.visibility_off)),
+                          icon: Icon(
+                              !_isObsecure
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: appBarColor)),
                     ),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     keyboardType: TextInputType.visiblePassword,
@@ -174,6 +217,56 @@ class _SignUpState extends State<SignUp> {
                     },
                   ),
                 ),
+                passwordFocusNode.hasFocus
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 30, right: 30),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Color.fromARGB(255, 236, 236, 236),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'A - Z, at least one uppercase letter',
+                                    style: TextStyle(
+                                      color: capitalLetterValid
+                                          ? Colors.green
+                                          : Colors.red,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  Text(
+                                    '# \$ @ ! % * ^ &, at least one special character',
+                                    style: TextStyle(
+                                      color: specialCharacterValid
+                                          ? Colors.green
+                                          : Colors.red,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  Text(
+                                    '0 1 ... 8 9, at least one digit number',
+                                    style: TextStyle(
+                                      color: numberValid
+                                          ? Colors.green
+                                          : Colors.red,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(),
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
@@ -201,16 +294,22 @@ class _SignUpState extends State<SignUp> {
                         color: appBarColor,
                       ),
                       isDense: true,
-                      prefixIcon: const Icon(Icons.lock),
+                      prefixIcon: const Icon(
+                        Icons.lock,
+                        color: appBarColor,
+                      ),
                       suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {
                               _isObsecure2 = !_isObsecure2;
                             });
                           },
-                          icon: Icon(!_isObsecure2
-                              ? Icons.visibility
-                              : Icons.visibility_off)),
+                          icon: Icon(
+                            !_isObsecure2
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: appBarColor,
+                          )),
                     ),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     keyboardType: TextInputType.visiblePassword,
@@ -224,7 +323,7 @@ class _SignUpState extends State<SignUp> {
                   child: TextFormField(
                     controller: _nameController,
                     validator: (value) =>
-                        value!.isEmpty ? " name required ! " : null,
+                        value!.isEmpty ? " name required  " : null,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -253,25 +352,49 @@ class _SignUpState extends State<SignUp> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: IntlPhoneField(
+                    dropdownIcon: const Icon(
+                      Icons.arrow_drop_down,
+                      color: appBarColor,
+                    ),
                     controller: _phoneNumberController,
-                    validator: (value) =>
-                        value == null ? " phone number Required ! " : null,
+                    validator: (value) {
+                      if (value == null || value.toString().isEmpty) {
+                        setState(() {
+                          phoneHasError = true;
+                        });
+                      } else {
+                        setState(() {
+                          phoneHasError = false;
+                        });
+                      }
+                      return null; // Return null if the input is valid
+                    },
                     initialCountryCode: "JO",
                     focusNode: focusNode,
+                    cursorColor: appBarColor,
                     decoration: InputDecoration(
+                      labelStyle: const TextStyle(
+                        color: appBarColor,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(),
+                        borderSide: BorderSide(
+                            color: phoneHasError ? Colors.red : Colors.grey),
                       ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                            color: phoneHasError ? Colors.red : Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: phoneHasError ? Colors.red : Colors.grey),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10)),
                       ),
                       labelText: 'Phone Number',
                     ),
                     languageCode: "en",
-                    onChanged: (phone) {
-                      print(phone.completeNumber);
-                    },
                     onCountryChanged: (country) {
                       print('Country changed to: ' + country.name);
                     },
@@ -291,6 +414,17 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     onPressed: () async {
+                      if (_phoneNumberController.text.isNotEmpty) {
+                        setState(() {
+                          phoneHasError = false;
+                        });
+                      }
+                      if (_phoneNumberController.text.isEmpty &&
+                          _formKey.currentState!.validate() == false) {
+                        setState(() {
+                          phoneHasError = true;
+                        });
+                      }
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
 
@@ -306,14 +440,18 @@ class _SignUpState extends State<SignUp> {
 
                         // Save UID and other user information
                         saveSignUpData(newUserSignup);
-
+                        // Provider.of<CurrentUser>(context, listen: false)
+                        //     .updateUser(userUID);
                         // Print UID
                         print(
                             'Generated UID***************************************: $userUID');
 
                         print(
                             'email: ${newUserSignup.email}\npass : ${newUserSignup.password}\n username : ${newUserSignup.name}');
-
+                        CurrentUser currentUser = CurrentUser();
+                        currentUser.signUpCurrent(userUID);
+                        print(
+                            "___________________________\\\\\\\\\\\\\\\\\\\\\\\\\\___________$currentUser");
                         const snackBar = SnackBar(
                           content: Text('Sign up successful'),
                         );
@@ -321,7 +459,9 @@ class _SignUpState extends State<SignUp> {
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const HomePage(),
+                            builder: (context) => HomePage(
+                              currentUserID: userUID,
+                            ),
                           ),
                           (route) => false,
                         );

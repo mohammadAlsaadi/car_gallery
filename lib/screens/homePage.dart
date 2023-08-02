@@ -10,11 +10,14 @@ import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
 import 'package:task1/screens/getStarted.dart';
 import 'package:task1/screens/profile.dart';
+import 'package:provider/provider.dart';
 
+import '../service/currentUser.dart';
 import 'editPage.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String? currentUserID;
+  const HomePage({super.key, this.currentUserID});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -135,7 +138,7 @@ class _HomePageState extends State<HomePage> {
   }
   // Default selected option
 
-  SortOption selectedOption = SortOption.date;
+  SortOption? selectedOption = SortOption.date;
 
   void _sortCards() {
     if (selectedOption == SortOption.date) {
@@ -181,75 +184,75 @@ class _HomePageState extends State<HomePage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                title: Text("value1 "),
-                leading: Radio<SortOption>(
-                    value: SortOption.date,
-                    groupValue: selectedOption,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedOption = value!;
-                      });
-                    }),
+              // ListTile(
+              //   title: Text("value1 "),
+              //   leading: Radio<SortOption>(
+              //       value: SortOption.date,
+              //       groupValue: selectedOption,
+              //       onChanged: (value) {
+              //         setState(() {
+              //           selectedOption = value!;
+              //         });
+              //       }),
+              // ),
+              // ListTile(
+              //   title: Text("value2 "),
+              //   leading: Radio<SortOption>(
+              //       value: SortOption.name,
+              //       groupValue: selectedOption,
+              //       onChanged: (value) {
+              //         setState(() {
+              //           selectedOption = value!;
+              //         });
+              //       }),
+              // )
+              RadioListTile<SortOption>(
+                title: const Text(
+                  'by Date',
+                  style: TextStyle(color: button),
+                ),
+                value: SortOption.date,
+                groupValue: selectedOption,
+                onChanged: (SortOption? value) {
+                  setState(() {
+                    print("******  $value");
+                    selectedOption = value;
+                    print("***selectedOption***  $selectedOption");
+                  });
+                },
+                activeColor: button,
               ),
-              ListTile(
-                title: Text("value2 "),
-                leading: Radio<SortOption>(
-                    value: SortOption.name,
-                    groupValue: selectedOption,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedOption = value!;
-                      });
-                    }),
-              )
-              // RadioListTile<SortOption>(
-              //   title: const Text(
-              //     'by Date',
-              //     style: TextStyle(color: button),
-              //   ),
-              //   value: SortOption.date,
-              //   groupValue: selectedOption,
-              //   onChanged: (SortOption? value) {
-              //     setState(() {
-              //       print("******  $value");
-              //       selectedOption = value;
-              //       print("***selectedOption***  $selectedOption");
-              //     });
-              //   },
-              //   activeColor: button,
-              // ),
-              // RadioListTile<SortOption>(
-              //   title: const Text(
-              //     'by Car Name',
-              //     style: TextStyle(color: button),
-              //   ),
-              //   value: SortOption.name,
-              //   groupValue: selectedOption,
-              //   onChanged: (SortOption? value) {
-              //     setState(() {
-              //       print("******  $value");
-              //       selectedOption = value;
-              //     });
-              //   },
-              //   activeColor: button,
-              // ),
-              // RadioListTile<SortOption>(
-              //   title: const Text(
-              //     'by Price',
-              //     style: TextStyle(color: button),
-              //   ),
-              //   value: SortOption.price,
-              //   groupValue: selectedOption,
-              //   onChanged: (SortOption? value) {
-              //     setState(() {
-              //       print("******  $value");
-              //       selectedOption = value;
-              //       selcet = true;
-              //     });
-              //   },
-              //   activeColor: button,
-              // ),
+              RadioListTile<SortOption>(
+                title: const Text(
+                  'by Car Name',
+                  style: TextStyle(color: button),
+                ),
+                value: SortOption.name,
+                groupValue: selectedOption,
+                onChanged: (SortOption? value) {
+                  setState(() {
+                    print("******  $value");
+                    selectedOption = value;
+                  });
+                },
+                activeColor: button,
+              ),
+              RadioListTile<SortOption>(
+                title: const Text(
+                  'by Price',
+                  style: TextStyle(color: button),
+                ),
+                value: SortOption.price,
+                groupValue: selectedOption,
+                onChanged: (SortOption? value) {
+                  setState(() {
+                    print("******  $value");
+                    selectedOption = value;
+                    selcet = true;
+                  });
+                },
+                activeColor: button,
+              ),
             ],
           ),
           actions: [
@@ -285,7 +288,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // final currentUser = Provider.of<CurrentUser>(context);
+
     return Scaffold(
+      bottomSheet: Text(
+        'Current User: ${widget.currentUserID ?? "Not logged in"}',
+        style: TextStyle(fontSize: 18),
+      ),
       drawer: Drawer(
         backgroundColor: appBarColor,
         child: ListView(children: [
@@ -350,6 +359,8 @@ class _HomePageState extends State<HomePage> {
             ),
             onTap: () {
               _handleLogout(context);
+              CurrentUser currentUser = CurrentUser();
+              currentUser.logout();
             },
           )
         ]),

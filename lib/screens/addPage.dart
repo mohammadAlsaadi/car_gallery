@@ -18,24 +18,11 @@ class _AddPageState extends State<AddPage> {
   final TextEditingController _PriceController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
-  //CarInfo car = CarInfo();
-
-  // ColorsTheme color = new ColorsTheme();
-
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: appBarColor,
-        title: const Row(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 70),
-              child: Text("Add page "),
-            )
-          ],
-        ),
-      ),
+      appBar: AppBar(backgroundColor: appBarColor, title: Text("Edit page ")),
       body: Form(
           key: _formKey,
           child: SingleChildScrollView(
