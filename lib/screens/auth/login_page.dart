@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/service/currentUser.dart';
+import 'package:task1/utilis/constans.dart';
 
 import '../../Colors/colorTheme.dart';
+import '../../models/userAuthModel.dart';
 import '../homePage.dart';
 
 class Login extends StatefulWidget {
@@ -18,42 +20,43 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  Future<Map<String, dynamic>?> loadSignUpData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? signUpJson = prefs.getString('signUpData');
-    if (signUpJson != null) {
-      return json.decode(signUpJson);
-    }
-    return null;
+  List<UserAuth> signUpData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSignUpData();
   }
 
-  String? _validateEmail(var value) {
-    if (value.isEmpty) {
+  Future<void> _loadSignUpData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jsonUsers = prefs.getString('users') ?? '[]';
+    List<dynamic> userData = jsonDecode(jsonUsers);
+    signUpData = userData.map((user) => UserAuth.fromJson(user)).toList();
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
       return 'Email required';
     }
 
-    // Check if the email contains the "@gmail.com" domain
     if (!value.contains("@gmail.com")) {
       return 'Invalid email format. It must be like XX@XX.com';
     }
 
-    return null; // Return null if the email is valid
+    return null;
   }
 
-  //_________________pass reqexp
-
   bool isPasswordValid(String password) {
-    // Password must contain at least one uppercase letter, one special character, and one digit.
     RegExp regex = RegExp(r'^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$');
     return regex.hasMatch(password);
   }
 
-  //___________________________________
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObsecure = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,6 +85,7 @@ class _LoginState extends State<Login> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: TextFormField(
+                    controller: _emailController,
                     validator: _validateEmail,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -169,36 +173,7 @@ class _LoginState extends State<Login> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
-
-                        Map<String, dynamic>? signUpData =
-                            await loadSignUpData();
-                        if (signUpData != null &&
-                            signUpData['email'] == _emailController.text &&
-                            signUpData['password'] ==
-                                _passwordController.text) {
-                          // Login successful, navigate to the home page
-                          CurrentUser currentUser = CurrentUser();
-                          currentUser.signUpCurrent(signUpData['uid']);
-                          // ignore: avoid_print
-                          print(
-                              "\\\\\\\\\\\\\\\\\\______________${signUpData['uid']}////////_________________");
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomePage(
-                                currentUserID: currentUser.currentUserId,
-                              ),
-                            ),
-                            (route) => false,
-                          );
-                        } else {
-                          // Login failed, show an error message
-                          const snackBar = SnackBar(
-                            content: Text(
-                                'Invalid credentials. Please check your email and password.'),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        }
+                        _handleLogin();
                       }
                     },
                     child: const Padding(
@@ -215,6 +190,41 @@ class _LoginState extends State<Login> {
             ),
           )),
     );
+  }
+
+  void _handleLogin() {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    UserAuth? currentUser;
+    for (var user in signUpData) {
+      if (user.email == email && user.password == password) {
+        currentUser = user;
+        break;
+      }
+    }
+
+    if (currentUser != null) {
+      // Login successful, navigate to the home page
+      CurrentUser().signUpCurrent(currentUser.uid!);
+      setState(() {
+        shardUserId = currentUser!.uid;
+      });
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(currentUserID: shardUserId),
+        ),
+        (route) => false,
+      );
+    } else {
+      // Login failed, show an error message
+      const snackBar = SnackBar(
+        content:
+            Text('Invalid credentials. Please check your email and password.'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 }
 

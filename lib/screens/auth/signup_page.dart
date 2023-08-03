@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:task1/screens/homePage.dart';
+import 'package:task1/utilis/constans.dart';
 
 import 'package:uuid/uuid.dart';
 
@@ -25,18 +26,24 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   FocusNode focusNode = FocusNode();
 //___________________------
-  void saveSignUpData(UserAuth newUserSignup) {
-    final signUpData = {
-      'uid': generateUID(), // Add the generated UID
-      'email': _emailController.text,
-      'password': _passwordController.text,
-      'name': _nameController.text,
-    };
+  Future<void> saveSignUpData(UserAuth newUserSignup) async {
+    List<UserAuth> users = await _loadUsers();
+    users.add(newUserSignup);
+
+    final signUpData = users.map((user) => user.toJson()).toList();
     final signUpJson = json.encode(signUpData);
 
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.setString('signUpData', signUpJson);
-    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('users', signUpJson);
+  }
+
+  Future<List<UserAuth>> _loadUsers() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jsonUsers = prefs.getString('users') ?? '[]';
+    List<dynamic> userData = jsonDecode(jsonUsers);
+    List<UserAuth> users =
+        userData.map((user) => UserAuth.fromJson(user)).toList();
+    return users;
   }
 
   //_______________________
@@ -106,6 +113,17 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _checkUserExists(String email) async {
+      List<UserAuth> users = await _loadUsers();
+      for (var user in users) {
+        if (user.email == email) {
+          const snackBar = SnackBar(content: Text('Email already exists'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          return;
+        }
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
@@ -426,7 +444,7 @@ class _SignUpState extends State<SignUp> {
                       }
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
-
+                        _checkUserExists(_emailController.text);
                         String userUID = generateUID();
 
                         UserAuth newUserSignup = UserAuth(
@@ -436,7 +454,8 @@ class _SignUpState extends State<SignUp> {
                           name: _nameController.text,
                           phoneNumber: _phoneNumberController.text,
                         );
-
+                        print(
+                            ' ????????????????????????????????????????????????${_loadUsers()}');
                         // Save UID and other user information
                         saveSignUpData(newUserSignup);
                         // Provider.of<CurrentUser>(context, listen: false)
@@ -444,6 +463,8 @@ class _SignUpState extends State<SignUp> {
                         // Print UID
                         print(
                             'Generated UID***************************************: $userUID');
+                        print(
+                            'Generated UID***************************************: ${newUserSignup.phoneNumber}');
 
                         print(
                             'email: ${newUserSignup.email}\npass : ${newUserSignup.password}\n username : ${newUserSignup.name}');
@@ -455,12 +476,16 @@ class _SignUpState extends State<SignUp> {
                           content: Text('Sign up successful'),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        setState(() {
+                          shardUserId = userUID;
+                        });
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
                             builder: (context) => HomePage(
-                              currentUserID: userUID,
-                            ),
+                                currentUserID: shardUserId,
+                                userName: newUserSignup.name,
+                                phone: newUserSignup.phoneNumber),
                           ),
                           (route) => false,
                         );

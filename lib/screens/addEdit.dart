@@ -1,13 +1,20 @@
+// ignore_for_file: library_private_types_in_public_api, file_names
+
 import 'package:flutter/material.dart';
+import 'package:task1/service/currentUser.dart';
+import 'package:task1/utilis/constans.dart';
 
 import '../Colors/colorTheme.dart';
 import '../models/carModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddEditPage extends StatefulWidget {
   final bool isEdit;
   final CarInfo? car;
+  final String? currentUserID;
 
-  AddEditPage({required this.isEdit, this.car});
+  const AddEditPage(
+      {super.key, required this.isEdit, this.car, this.currentUserID});
 
   @override
   _AddEditPageState createState() => _AddEditPageState();
@@ -21,19 +28,26 @@ class _AddEditPageState extends State<AddEditPage> {
   late TextEditingController _dateController;
 
   @override
-  @override
-  Widget build(BuildContext context) {
+  void initState() {
     if (widget.isEdit) {
       // Editing an existing car
-      _carNameController = TextEditingController(text: widget.car!.carName);
-      _priceController = TextEditingController(text: widget.car!.carPrice);
-      _dateController = TextEditingController(text: widget.car!.carDate);
+      setState(() {
+        _carNameController = TextEditingController(text: widget.car!.carName);
+        _priceController = TextEditingController(text: widget.car!.carPrice);
+        _dateController = TextEditingController(text: widget.car!.carDate);
+      });
+      print(widget.car!.carName);
     } else {
       // Adding a new car
       _carNameController = TextEditingController();
       _priceController = TextEditingController();
       _dateController = TextEditingController();
     }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
@@ -47,6 +61,7 @@ class _AddEditPageState extends State<AddEditPage> {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: TextFormField(
+                  controller: _carNameController,
                   validator: (value) =>
                       value!.isEmpty ? "Enter a car name ! " : null,
                   decoration: const InputDecoration(
@@ -73,6 +88,7 @@ class _AddEditPageState extends State<AddEditPage> {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: TextFormField(
+                  controller: _priceController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter the description of your vehicle';
@@ -103,6 +119,7 @@ class _AddEditPageState extends State<AddEditPage> {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: TextFormField(
+                  controller: _dateController,
                   validator: (value) =>
                       value!.isEmpty ? "Enter an date ! " : null,
                   decoration: const InputDecoration(
@@ -146,20 +163,25 @@ class _AddEditPageState extends State<AddEditPage> {
                       String carName = _carNameController.text;
                       String carPrice = _priceController.text;
                       String carDate = _dateController.text;
+                      String currentUserId = shardUserId!;
 
                       CarInfo newCar = CarInfo(
-                        carName: carName,
-                        carPrice: carPrice,
-                        carDate: carDate,
-                      );
+                          userID: currentUserId,
+                          carName: carName,
+                          carPrice: carPrice,
+                          carDate: carDate);
 
-                      if (widget.isEdit) {
-                        // Editing an existing car
-                        Navigator.pop(context, newCar);
-                      } else {
-                        // Adding a new car
-                        Navigator.pop(context);
-                      }
+                      print(
+                          "${newCar.userID}......${newCar.carDate}......${newCar.carName}");
+                      Navigator.pop(context, newCar);
+
+                      // if (widget.isEdit) {
+                      //   // Editing an existing car
+
+                      // } else {
+                      //   // Adding a new car
+                      //   Navigator.pop(context);
+                      // }
 
                       //  snackBar = SnackBar(
                       //   content: Text(widget.isEdit ? 'Car edited!' : 'Car added!'),
@@ -167,14 +189,10 @@ class _AddEditPageState extends State<AddEditPage> {
                       // ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   },
-                  child: const Padding(
-                    padding: EdgeInsets.only(
-                        left: 20, right: 20, top: 10, bottom: 10),
-                    child: Text(
-                      "Add car ",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
+                  child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 20, right: 20, top: 10, bottom: 10),
+                      child: Text(widget.isEdit ? "Edit Car" : "Add Car")),
                 ),
               ),
             ],

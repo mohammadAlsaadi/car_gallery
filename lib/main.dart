@@ -1,10 +1,11 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
-import 'package:task1/screens/addPage.dart';
+import 'package:task1/trash/addPage.dart';
 import 'package:task1/screens/getStarted.dart';
 import 'package:task1/screens/homePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task1/utilis/constans.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,21 +30,16 @@ class MyApp extends StatelessWidget {
           String? currentUserId = snapshot.data;
           if (currentUserId != null && currentUserId.isNotEmpty) {
             // If the currentUserId is not null or empty, show the HomePage
+            shardUserId = currentUserId;
             return HomePage(currentUserID: currentUserId);
-          } else {
+          } else if (currentUserId == null) {
             // If the currentUserId is null or empty, show the GetStarted page
+            return const Center(child: CircularProgressIndicator());
+          } else {
             return const GetStarted();
           }
         },
       ),
-      onGenerateRoute: (settings) {
-        if (settings.name == '/AddPage') {
-          return MaterialPageRoute(
-            builder: (context) => const AddPage(),
-          );
-        }
-        return null;
-      },
     );
   }
 }

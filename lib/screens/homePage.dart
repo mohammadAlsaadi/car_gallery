@@ -11,14 +11,15 @@ import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
 import 'package:task1/screens/getStarted.dart';
 import 'package:task1/screens/profile.dart';
-import 'package:provider/provider.dart';
+import 'package:task1/utilis/constans.dart';
 
 import '../service/currentUser.dart';
-import 'editPage.dart';
 
 class HomePage extends StatefulWidget {
   final String? currentUserID;
-  const HomePage({super.key, this.currentUserID});
+  final String? userName;
+  final String? phone;
+  const HomePage({super.key, this.currentUserID, this.userName, this.phone});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -56,14 +57,22 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _loadCars();
+    _loadCars(shardUserId); // Pass the current user ID to load their cars
   }
 
-  void _loadCars() async {
+  void _loadCars(String? userId) async {
+    if (userId == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String jsonCars = prefs.getString('cars') ?? '[]';
+    String jsonCars = prefs.getString('cars_$userId') ?? '[]';
     List<dynamic> carData = jsonDecode(jsonCars);
     List<CarInfo> cars = carData.map((car) => CarInfo.fromJson(car)).toList();
+
     setState(() {
       _carList = cars;
       _isLoading = false;
@@ -73,7 +82,8 @@ class _HomePageState extends State<HomePage> {
   void _saveCars() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String jsonCars = jsonEncode(_carList);
-    prefs.setString('cars', jsonCars);
+    prefs.setString('cars_${shardUserId}',
+        jsonCars); // Use the current user ID to save their cars
   }
 
   void _removeCar(int index) {
@@ -130,90 +140,115 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: appBarColor,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Center(
-                  child: Text(
-                    'Choose One',
-                    style: TextStyle(color: button),
-                  ),
-                ),
-              ),
-              RadioListTile<SortOption>(
-                title: const Text(
-                  'by Date',
-                  style: TextStyle(color: button),
-                ),
-                value: SortOption.date,
-                groupValue: selectedOption,
-                onChanged: (SortOption? value) {
-                  setState(() {
-                    selectedOption = value;
-                  });
-                },
-                activeColor: button,
-              ),
-              RadioListTile<SortOption>(
-                title: const Text(
-                  'by Car Name',
-                  style: TextStyle(color: button),
-                ),
-                value: SortOption.name,
-                groupValue: selectedOption,
-                onChanged: (SortOption? value) {
-                  setState(() {
-                    selectedOption = value;
-                  });
-                },
-                activeColor: button,
-              ),
-              RadioListTile<SortOption>(
-                title: const Text(
-                  'by Price',
-                  style: TextStyle(color: button),
-                ),
-                value: SortOption.price,
-                groupValue: selectedOption,
-                onChanged: (SortOption? value) {
-                  setState(() {
-                    selectedOption = value;
-                  });
-                },
-                activeColor: button,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: button),
+            backgroundColor: appBarColor,
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Center(
+                        child: Text(
+                          'Choose One',
+                          style: TextStyle(color: button, fontSize: 17),
+                        ),
+                      ),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: selectedOption != null
-                        ? () {
-                            Navigator.of(context).pop();
-                            _sortCards();
-                          }
-                        : null,
-                    child: const Text(
-                      'Sort',
-                      style: TextStyle(color: button),
+                    RadioListTile<SortOption>(
+                      title: const Text(
+                        'by Date',
+                        style: TextStyle(color: button),
+                      ),
+                      value: SortOption.date,
+                      groupValue: selectedOption,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedOption = value;
+                        });
+                      },
+                      activeColor: button,
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
+                    RadioListTile<SortOption>(
+                      title: const Text(
+                        'by Car Name',
+                        style: TextStyle(color: button),
+                      ),
+                      value: SortOption.name,
+                      groupValue: selectedOption,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedOption = value;
+                        });
+                      },
+                      activeColor: button,
+                    ),
+                    RadioListTile<SortOption>(
+                      title: const Text(
+                        'by Price',
+                        style: TextStyle(color: button),
+                      ),
+                      value: SortOption.price,
+                      groupValue: selectedOption,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedOption = value;
+                        });
+                      },
+                      activeColor: button,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(color: button),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(11.0),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              foregroundColor:
+                                  MaterialStateProperty.all<Color>(white),
+                              backgroundColor:
+                                  MaterialStateProperty.all<Color>(button),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                              ),
+                            ),
+                            onPressed: selectedOption != null
+                                ? () {
+                                    Navigator.of(context).pop();
+                                    _sortCards();
+                                  }
+                                : null,
+                            child: const Padding(
+                              padding: EdgeInsets.only(
+                                  left: 10, right: 10, top: 5, bottom: 5),
+                              child: Text(
+                                "Sort",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: appBarColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ));
       },
     );
   }
@@ -222,13 +257,15 @@ class _HomePageState extends State<HomePage> {
     final newCar = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditPage(isEdit: false),
+        builder: (context) =>
+            AddEditPage(isEdit: false, currentUserID: widget.currentUserID),
       ),
     );
 
     if (newCar != null && newCar is CarInfo) {
       setState(() {
         _carList.add(newCar);
+        print(newCar);
       });
       _saveCars();
     }
@@ -260,18 +297,42 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       bottomSheet: Text(
-        'Current User: ${widget.currentUserID ?? "Not logged in"}',
-        style: TextStyle(fontSize: 18),
+        'Current User: ${shardUserId ?? "Not logged in"}',
+        style: const TextStyle(fontSize: 18),
       ),
       drawer: Drawer(
+        shadowColor: appBarColor,
         backgroundColor: appBarColor,
         child: ListView(children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(),
             child: DrawerHeader(
               padding: EdgeInsets.all(15),
-              child:
-                  Text("More option", style: TextStyle(color: backgroundColor)),
+              child: Row(
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      "images/moalsaadi.jpg",
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 50, left: 20),
+                    child: Column(
+                      children: [
+                        Text(
+                          "${widget.userName}",
+                          style: TextStyle(color: button),
+                        ),
+                        Text("${widget.phone}",
+                            style: TextStyle(color: button)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           ListTile(
@@ -279,12 +340,12 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Icon(
                   Icons.person,
-                  color: backgroundColor,
+                  color: button,
                 ),
                 SizedBox(
                   width: 20,
                 ),
-                Text("Profile", style: TextStyle(color: backgroundColor)),
+                Text("My Profile", style: TextStyle(color: button)),
               ],
             ),
             onTap: () {
@@ -299,30 +360,11 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: const Row(
               children: [
-                Icon(Icons.settings, color: backgroundColor),
+                Icon(Icons.logout_outlined, color: button),
                 SizedBox(
                   width: 20,
                 ),
-                Text("Setting", style: TextStyle(color: backgroundColor)),
-              ],
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SignUp(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            title: const Row(
-              children: [
-                Icon(Icons.logout_outlined, color: backgroundColor),
-                SizedBox(
-                  width: 20,
-                ),
-                Text("Logout", style: TextStyle(color: backgroundColor)),
+                Text("Logout", style: TextStyle(color: button)),
               ],
             ),
             onTap: () {
