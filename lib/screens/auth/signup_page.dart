@@ -134,7 +134,7 @@ class _SignUpState extends State<SignUp> {
             child: Column(
               children: [
                 const SizedBox(
-                  height: 70,
+                  height: 30,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20),
@@ -444,7 +444,7 @@ class _SignUpState extends State<SignUp> {
                           phoneNumber: _phoneNumberController.text,
                         );
 
-                        saveSignUpData(newUserSignup);
+                        await saveSignUpData(newUserSignup);
 
                         CurrentUser currentUser = CurrentUser();
                         currentUser.signUpCurrent(userUID);

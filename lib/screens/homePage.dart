@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/models/carModel.dart';
 import 'package:task1/screens/addEdit.dart';
-import 'package:task1/screens/auth/signup_page.dart';
 import 'package:task1/screens/detailPage.dart';
 import 'package:task1/Colors/colorTheme.dart';
 import 'package:task1/screens/getStarted.dart';
@@ -18,9 +17,9 @@ import '../service/currentUser.dart';
 
 class HomePage extends StatefulWidget {
   final String? currentUserID;
-  final String? userName;
-  final String? phone;
-  const HomePage({super.key, this.currentUserID, this.userName, this.phone});
+  String? userName;
+  String? phone;
+  HomePage({super.key, this.currentUserID, this.userName, this.phone});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -45,13 +44,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //_______________________
-  // void updateCarInfo(int index, CarInfo updatedCar) {
-  //   setState(() {
-  //     _carList[index] = updatedCar;
-  //   });
-  // }
-
   List<CarInfo> _carList = [];
   bool _isLoading = true;
 
@@ -59,7 +51,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadCars(shardUserId);
-    _loadUser(shardUserId);
+    _loadUserData();
   }
 
   void _loadUser(String? userId) async {
@@ -72,10 +64,41 @@ class _HomePageState extends State<HomePage> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String jsonUsers = prefs.getString('users') ?? '[]';
-
     List<dynamic> userData = jsonDecode(jsonUsers);
     List<UserAuth> users =
         userData.map((user) => UserAuth.fromJson(user)).toList();
+
+    // Find the user with the current user ID and update the user information
+    UserAuth? currentUser;
+    for (var user in users) {
+      if (user.uid == userId) {
+        currentUser = user;
+        break;
+      }
+    }
+
+    if (currentUser != null) {
+      setState(() {
+        widget.userName = currentUser?.name;
+        widget.phone = currentUser?.phoneNumber;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _loadUserData() async {
+    if (widget.currentUserID != null) {
+      // ignore: await_only_futures
+      _loadUser(widget.currentUserID);
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _loadCars(String? userId) async {
@@ -95,6 +118,23 @@ class _HomePageState extends State<HomePage> {
       _carList = cars;
       _isLoading = false;
     });
+  }
+
+  void _saveUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jsonUsers = prefs.getString('users') ?? '[]';
+    List<dynamic> userData = jsonDecode(jsonUsers);
+    List<UserAuth> users =
+        userData.map((user) => UserAuth.fromJson(user)).toList();
+
+    // Find the user with the current user ID and update the user information
+    int index = users.indexWhere((user) => user.uid == shardUserId);
+    if (index != -1) {
+      users[index].name = widget.userName ?? '';
+      users[index].phoneNumber = widget.phone ?? '';
+      String updatedUsersJson = jsonEncode(users);
+      prefs.setString('users', updatedUsersJson);
+    }
   }
 
   void _saveCars() async {
@@ -276,16 +316,16 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            AddEditPage(isEdit: false, currentUserID: widget.currentUserID),
+            AddEditPage(isEdit: false, currentUserID: shardUserId),
       ),
     );
 
     if (newCar != null && newCar is CarInfo) {
       setState(() {
         _carList.add(newCar);
-        print(newCar);
       });
       _saveCars();
+      _saveUser(); // Save the user information when adding a new car
     }
   }
 
@@ -293,7 +333,8 @@ class _HomePageState extends State<HomePage> {
     final updatedCar = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditPage(isEdit: true, car: car),
+        builder: (context) =>
+            AddEditPage(isEdit: true, car: car, currentUserID: shardUserId),
       ),
     );
 
@@ -315,7 +356,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       bottomSheet: Text(
-        'Current User: {_loadUser(widget.currentUserID) ?? "Not logged in"}',
+        'Current User: ${widget.currentUserID ?? "Not logged in"}',
         style: const TextStyle(fontSize: 18),
       ),
       drawer: Drawer(
@@ -495,4 +536,10 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+@override
+Widget build(BuildContext context) {
+  // TODO: implement build
+  throw UnimplementedError();
 }

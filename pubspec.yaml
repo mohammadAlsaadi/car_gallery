@@ -52,6 +52,7 @@ dev_dependencies:
   intl_phone_field: ^3.1.0
   provider: ^5.0.0
   image_picker: ^1.0.1
+  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

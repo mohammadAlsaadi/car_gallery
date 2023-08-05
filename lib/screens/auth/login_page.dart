@@ -206,14 +206,11 @@ class _LoginState extends State<Login> {
 
     if (currentUser != null) {
       // Login successful, navigate to the home page
-      CurrentUser().signUpCurrent(currentUser.uid!);
-      setState(() {
-        shardUserId = currentUser!.uid;
-      });
+      CurrentUser().signUpCurrent(currentUser.uid);
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(currentUserID: currentUser!.uid),
+          builder: (context) => HomePage(currentUserID: currentUser?.uid),
         ),
         (route) => false,
       );
@@ -227,7 +224,6 @@ class _LoginState extends State<Login> {
     }
   }
 }
-
 
 
 

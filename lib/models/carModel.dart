@@ -8,12 +8,14 @@ class CarInfo {
   String carPrice;
   String carDate;
   String userID;
+  String carImage;
 
   CarInfo(
       {required this.carName,
       required this.carPrice,
       required this.carDate,
-      required this.userID});
+      required this.userID,
+      required this.carImage});
 
   Map<String, dynamic> toJson() {
     return {
@@ -21,6 +23,7 @@ class CarInfo {
       'carPrice': carPrice,
       'carDate': carDate,
       'uid': userID,
+      'carImage': carImage
     };
   }
 
@@ -31,15 +34,8 @@ class CarInfo {
       carPrice: json['carPrice'],
       carDate: json['carDate'],
       userID: json['uid'],
+      carImage: json['carImage'],
     );
-  }
-
-  static Future<List<CarInfo>> fetchCarListForUser(String uid) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String jsonCars = prefs.getString('cars_$uid') ?? '[]';
-    List<dynamic> carData = jsonDecode(jsonCars);
-    List<CarInfo> cars = carData.map((car) => CarInfo.fromJson(car)).toList();
-    return cars;
   }
 }
 
