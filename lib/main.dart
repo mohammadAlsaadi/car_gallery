@@ -32,10 +32,14 @@ class MyApp extends StatelessWidget {
             // If the currentUserId is not null or empty, show the HomePage
             shardUserId = currentUserId;
             return HomePage(currentUserID: currentUserId);
-          } else if (currentUserId == null) {
-            // If the currentUserId is null or empty, show the GetStarted page
-            return const Center(child: CircularProgressIndicator());
-          } else {
+          }
+
+          // else if (currentUserId == null) {
+          //   // If the currentUserId is null or empty, show the GetStarted page
+          //   return const Center(child: CircularProgressIndicator());
+          // }
+
+          else {
             return const GetStarted();
           }
         },

@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/service/currentUser.dart';
-import 'package:task1/utilis/constans.dart';
 
 import '../../Colors/colorTheme.dart';
 import '../../models/userAuthModel.dart';
+import '../../utilis/constans.dart';
 import '../homePage.dart';
 
 class Login extends StatefulWidget {
@@ -213,7 +213,7 @@ class _LoginState extends State<Login> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(currentUserID: shardUserId),
+          builder: (context) => HomePage(currentUserID: currentUser!.uid),
         ),
         (route) => false,
       );

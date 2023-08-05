@@ -113,17 +113,6 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> _checkUserExists(String email) async {
-      List<UserAuth> users = await _loadUsers();
-      for (var user in users) {
-        if (user.email == email) {
-          const snackBar = SnackBar(content: Text('Email already exists'));
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-          return;
-        }
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
@@ -444,7 +433,7 @@ class _SignUpState extends State<SignUp> {
                       }
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
-                        _checkUserExists(_emailController.text);
+
                         String userUID = generateUID();
 
                         UserAuth newUserSignup = UserAuth(
@@ -454,30 +443,19 @@ class _SignUpState extends State<SignUp> {
                           name: _nameController.text,
                           phoneNumber: _phoneNumberController.text,
                         );
-                        print(
-                            ' ????????????????????????????????????????????????${_loadUsers()}');
-                        // Save UID and other user information
-                        saveSignUpData(newUserSignup);
-                        // Provider.of<CurrentUser>(context, listen: false)
-                        //     .updateUser(userUID);
-                        // Print UID
-                        print(
-                            'Generated UID***************************************: $userUID');
-                        print(
-                            'Generated UID***************************************: ${newUserSignup.phoneNumber}');
 
-                        print(
-                            'email: ${newUserSignup.email}\npass : ${newUserSignup.password}\n username : ${newUserSignup.name}');
+                        saveSignUpData(newUserSignup);
+
                         CurrentUser currentUser = CurrentUser();
                         currentUser.signUpCurrent(userUID);
-                        print(
-                            "___________________________\\\\\\\\\\\\\\\\\\\\\\\\\\___________$currentUser");
+
                         const snackBar = SnackBar(
                           content: Text('Sign up successful'),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         setState(() {
                           shardUserId = userUID;
+                          print(shardUserId);
                         });
                         Navigator.pushAndRemoveUntil(
                           context,

@@ -13,6 +13,7 @@ import 'package:task1/screens/getStarted.dart';
 import 'package:task1/screens/profile.dart';
 import 'package:task1/utilis/constans.dart';
 
+import '../models/userAuthModel.dart';
 import '../service/currentUser.dart';
 
 class HomePage extends StatefulWidget {
@@ -57,7 +58,24 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _loadCars(shardUserId); // Pass the current user ID to load their cars
+    _loadCars(shardUserId);
+    _loadUser(shardUserId);
+  }
+
+  void _loadUser(String? userId) async {
+    if (userId == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jsonUsers = prefs.getString('users') ?? '[]';
+
+    List<dynamic> userData = jsonDecode(jsonUsers);
+    List<UserAuth> users =
+        userData.map((user) => UserAuth.fromJson(user)).toList();
   }
 
   void _loadCars(String? userId) async {
@@ -297,7 +315,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       bottomSheet: Text(
-        'Current User: ${shardUserId ?? "Not logged in"}',
+        'Current User: {_loadUser(widget.currentUserID) ?? "Not logged in"}',
         style: const TextStyle(fontSize: 18),
       ),
       drawer: Drawer(
@@ -412,69 +430,61 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : ListView.builder(
-              itemCount: _carList.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    color: appBarColor,
-                    elevation: 15,
-                    child: ListTile(
-                        leading: Image.asset("images/car.png"),
-                        //title: Text(_carList[index].carName),
-                        subtitle: Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(_carList[index].carName,
-                                    style: const TextStyle(
-                                        color: backgroundColor)),
-                                Text(
-                                  'Price : ${_carList[index].carPrice}',
-                                  style:
-                                      const TextStyle(color: backgroundColor),
-                                ),
-                                Text('date : ${_carList[index].carDate}',
-                                    style: const TextStyle(
-                                        color: backgroundColor)),
-                              ],
-                            ),
-                          ],
-                        ),
-                        trailing: Stack(
-                          children: [
-                            IconButton(
-                              onPressed: () => _navigateToEditPage1(
-                                  context, _carList[index]),
-                              icon: const Icon(
-                                Icons.edit,
-                                color: button,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 50),
-                              child: IconButton(
-                                onPressed: () => _removeCar(index),
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: button,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        onTap: () =>
-                            _navigateToDetailPage(context, _carList[index])),
+      body: ListView.builder(
+        itemCount: _carList.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              color: appBarColor,
+              elevation: 15,
+              child: ListTile(
+                  leading: Image.asset("images/car.png"),
+                  //title: Text(_carList[index].carName),
+                  subtitle: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_carList[index].carName,
+                              style: const TextStyle(color: backgroundColor)),
+                          Text(
+                            'Price : ${_carList[index].carPrice}',
+                            style: const TextStyle(color: backgroundColor),
+                          ),
+                          Text('date : ${_carList[index].carDate}',
+                              style: const TextStyle(color: backgroundColor)),
+                        ],
+                      ),
+                    ],
                   ),
-                );
-              },
+                  trailing: Stack(
+                    children: [
+                      IconButton(
+                        onPressed: () =>
+                            _navigateToEditPage1(context, _carList[index]),
+                        icon: const Icon(
+                          Icons.edit,
+                          color: button,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 50),
+                        child: IconButton(
+                          onPressed: () => _removeCar(index),
+                          icon: const Icon(
+                            Icons.delete,
+                            color: button,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  onTap: () => _navigateToDetailPage(context, _carList[index])),
             ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: appBarColor,
         onPressed: _navigateToAddEditCard,
