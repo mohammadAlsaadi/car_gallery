@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 //   final int backGroundColor = 0xDD272626;
 // }
 
-const Color backgroundColor = Color.fromARGB(255, 231, 231, 231);
+const Color backgroundColor = Color.fromARGB(255, 232, 232, 232);
 const Color appBarColor = Color(0xff343436);
 const Color white = Color.fromARGB(255, 216, 224, 240);
 const Color button = Color.fromARGB(230, 241, 233, 114);

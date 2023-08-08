@@ -448,6 +448,7 @@ class _HomePageState extends State<HomePage> {
             ),
 
             FloatingActionButton(
+              heroTag: "button1",
               elevation: 0,
               backgroundColor: appBarColor,
               onPressed: () {
@@ -527,6 +528,7 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "button2",
         backgroundColor: appBarColor,
         onPressed: _navigateToAddEditCard,
         child: const Icon(

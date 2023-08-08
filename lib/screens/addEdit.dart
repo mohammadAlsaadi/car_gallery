@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:task1/utilis/constans.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../Colors/colorTheme.dart';
 import '../models/carModel.dart';
 
@@ -44,30 +43,31 @@ class _AddEditPageState extends State<AddEditPage> {
       _dateController = TextEditingController();
     }
     super.initState();
-    fetchCarImages();
   }
 
   Future<void> fetchCarImages() async {
-    String apiKey = '01ZYe2V35f8AeXLuqfaY6lsBWwizI6EONg5bJszNiYtlqbWFb6r81d65';
+    String apiKey = '';
     String searchQuery = typeImages[selectedIndexForType];
     String color = lstOfColors[selectedIndexForcolor];
     String orientation = 'landscape';
     String size = 'small';
-
     String apiUrl =
-        'https://api.pexels.com/v1/search?query=$searchQuery&color=$color&orientation=$orientation&size=$size&page=1&per_page=10';
+        'https://api.pexels.com/v1/search?query=$searchQuery&color=$color&size=$size&orientation=$orientation';
 
     try {
       final dio = Dio();
       final response = await dio.get(
         apiUrl,
-        options: Options(headers: {'Authorization': apiKey}),
+        options: Options(headers: {
+          'Authorization':
+              'oQ9FT3s7z7MCoq2sO5HsQOmxjEZGBmjl9cmNqzBuIL10pFZJHRuuFpi2',
+        }),
       );
 
       if (response.statusCode == 200) {
         final data = response.data;
         List<String> fetchedImageUrls = [];
-        for (var photo in data['media']) {
+        for (var photo in data['photos']) {
           String imageUrl = photo['src']['original'];
           fetchedImageUrls.add(imageUrl);
         }
@@ -101,23 +101,21 @@ class _AddEditPageState extends State<AddEditPage> {
   ];
   int selectedIndexForcolor = -1;
   List<Color> carColors = [
-    const Color(0xffFF0000),
-    const Color(0xff0000FF),
-    const Color(0xff00FF00),
-    const Color(0xffffffff),
-    const Color(0xffFFC0CB),
-    const Color(0xff808080),
-    const Color(0xffFFA500),
+    const Color(0xffFF9800),
+    const Color(0xffFFFFFF),
+    const Color(0xff9C27B0),
+    const Color(0xff673AB7),
+    const Color(0xff9E9E9E),
+    const Color(0xff000000),
   ];
 
   List<String> lstOfColors = [
-    "FF0000", // red
-    '0000FF', // Blue;
-    '00FF00', // Green;
-    'FFFFFF', //White;
-    'FFC0CB', //Pink;
-    '808080', //Grey;
-    'FFA500' // orange;
+    "FF9800", // orange
+    'FFFFFF', // White;
+    '9C27B0', // pink
+    '673AB7', // blue
+    '9E9E9E', // grey
+    '000000', // blak
   ];
 
   bool typeSelect = false;
@@ -125,27 +123,43 @@ class _AddEditPageState extends State<AddEditPage> {
 
   @override
   Widget build(BuildContext context) {
+    final double labelText = MediaQuery.of(context).size.width - 300;
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: Text(widget.isEdit ? "Edit Car" : "Add Car"),
+        title: SizedBox(
+            width: labelText,
+            child: Text(
+              widget.isEdit ? "Edit Car" : "Add Car",
+              style: GoogleFonts.poppins(),
+            )),
       ),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(
+                height: 20,
+              ),
               Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 20, right: 190),
+                padding: const EdgeInsets.only(left: 30),
                 child: Text(
+                  maxLines: 1,
+                  softWrap: false,
                   "Select type of car : ",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
+              SizedBox(
+                height: 20,
+              ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10.0),
                 child: SizedBox(
-                  height: 50,
+                  height: 75,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: CarType.values.length,
@@ -154,6 +168,10 @@ class _AddEditPageState extends State<AddEditPage> {
                         onTap: () {
                           setState(() {
                             selectedIndexForType = index;
+                            if (selectedIndexForcolor != -1) {
+                              fetchCarImages();
+                            }
+
                             print(
                                 "__________________________$selectedIndexForType");
                           });
@@ -163,44 +181,51 @@ class _AddEditPageState extends State<AddEditPage> {
                             ? Stack(
                                 children: [
                                   Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                    ),
                                     width: 100,
                                     height: 100,
                                     margin: const EdgeInsets.symmetric(
-                                        horizontal: 4),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Colors.green, width: 4),
-                                      shape: BoxShape.circle,
-                                    ),
+                                        horizontal: 5),
                                     child: Center(
                                       child: Image.asset(
                                         'images/${typeImages[index]}.png',
-                                        width: 50,
-                                        height: 50,
                                         fit: BoxFit.cover,
+                                        width: 70,
+                                        height: 70,
                                       ),
                                     ),
                                   ),
-                                  const Positioned(
-                                      right: 17,
-                                      child: Icon(Icons.check_circle,
-                                          color: Colors.green)),
+                                  Positioned(
+                                      right: 20,
+                                      bottom: 45,
+                                      child: SizedBox(
+                                        width: 20,
+                                        child: CircleAvatar(
+                                          backgroundColor: Colors.green,
+                                          child: Icon(Icons.check,
+                                              size: 20, color: Colors.white),
+                                        ),
+                                      )),
                                 ],
                               )
                             : Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
                                 width: 100,
                                 height: 100,
                                 margin:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                ),
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: Center(
                                   child: Image.asset(
                                     'images/${typeImages[index]}.png',
-                                    width: 50,
-                                    height: 50,
                                     fit: BoxFit.cover,
+                                    width: 73,
+                                    height: 73,
                                   ),
                                 ),
                               ),
@@ -209,17 +234,25 @@ class _AddEditPageState extends State<AddEditPage> {
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.only(top: 20, bottom: 20, right: 200),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 30),
                 child: Text(
+                  maxLines: 1,
+                  softWrap: false,
                   "Select color : ",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
+              SizedBox(
+                height: 20,
+              ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10.0),
                 child: SizedBox(
-                  height: 50,
+                  height: 65,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: carColors.length,
@@ -228,16 +261,15 @@ class _AddEditPageState extends State<AddEditPage> {
                           onTap: () {
                             setState(() {
                               selectedIndexForcolor = index;
+                              if (selectedIndexForType != -1) {
+                                fetchCarImages();
+                              }
                             });
                             colorSelect = true;
                           },
                           child: selectedIndexForcolor == index
                               ? Stack(
                                   children: [
-                                    const Positioned(
-                                        right: 11,
-                                        child: Icon(Icons.check_circle,
-                                            color: Colors.green)),
                                     Container(
                                       width: 100,
                                       height: 100,
@@ -254,6 +286,17 @@ class _AddEditPageState extends State<AddEditPage> {
                                             color: carColors[index]),
                                       ),
                                     ),
+                                    Positioned(
+                                        right: 20,
+                                        bottom: 35,
+                                        child: SizedBox(
+                                          width: 20,
+                                          child: CircleAvatar(
+                                            backgroundColor: Colors.green,
+                                            child: Icon(Icons.check,
+                                                size: 20, color: Colors.white),
+                                          ),
+                                        )),
                                   ],
                                 )
                               : Container(
@@ -275,57 +318,71 @@ class _AddEditPageState extends State<AddEditPage> {
                   ),
                 ),
               ),
+              SizedBox(
+                height: 20,
+              ),
               Visibility(
                 visible: typeSelect && colorSelect,
                 child: Padding(
-                  padding:
-                      const EdgeInsets.only(right: 200, top: 20, bottom: 10),
+                  padding: const EdgeInsets.only(left: 30),
                   child: Text(
+                    maxLines: 1,
+                    softWrap: false,
                     "Select car image :",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
+              SizedBox(
+                height: 20,
+              ),
               Visibility(
                 visible: typeSelect && colorSelect,
                 child: SizedBox(
-                  height: 120,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    shrinkWrap: true,
-                    itemCount: imageUrls.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            carImage = imageUrls[index];
-                          });
-                          saveSelectedImage(imageUrls[index]);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CachedNetworkImage(
-                            imageUrl: imageUrls[index],
-                            placeholder: (context, url) => Center(
-                              child: Shimmer.fromColors(
-                                baseColor:
-                                    const Color.fromARGB(255, 212, 212, 212),
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  color: Colors.white,
-                                  width: 100,
-                                  height: 100,
+                    height: 120,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      itemCount: imageUrls.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          width: 160,
+                          height: 150,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                carImage = imageUrls[index];
+                              });
+                              saveSelectedImage(imageUrls[index]);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrls[index],
+                                placeholder: (context, url) => Center(
+                                  child: Container(
+                                    height: 100,
+                                    width: 150,
+                                    child: Shimmer.fromColors(
+                                      baseColor: const Color.fromARGB(
+                                          255, 212, 212, 212),
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                        color: Colors.white,
+                                        width: 100,
+                                        height: 160,
+                                      ),
+                                    ),
+                                  ),
                                 ),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
                               ),
                             ),
-                            errorWidget: (context, url, error) =>
-                                Icon(Icons.error),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                        );
+                      },
+                    )),
               ),
               Padding(
                 padding: const EdgeInsets.all(20),
@@ -412,7 +469,7 @@ class _AddEditPageState extends State<AddEditPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 0),
+                padding: const EdgeInsets.only(left: 150),
                 child: ElevatedButton(
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all<Color>(white),
@@ -451,6 +508,9 @@ class _AddEditPageState extends State<AddEditPage> {
                     child: Text(widget.isEdit ? "Edit Car" : "Add Car"),
                   ),
                 ),
+              ),
+              SizedBox(
+                height: 50,
               ),
             ],
           ),

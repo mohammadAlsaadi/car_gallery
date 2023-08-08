@@ -56,7 +56,8 @@ dev_dependencies:
   provider: ^5.0.0
   image_picker: ^1.0.1
   shimmer: ^2.0.0
-   
+  google_fonts:
+  
   
 
 # For information on the generic Dart part of this file, see the
