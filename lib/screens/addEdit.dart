@@ -71,8 +71,7 @@ class _AddEditPageState extends State<AddEditPage> {
       final response = await dio.get(
         apiUrl,
         options: Options(headers: {
-          'Authorization':
-              '01ZYe2V35f8AeXLuqfaY6lsBWwizI6EONg5bJszNiYtlqbWFb6r81d65',
+          'Authorization': '',
         }),
       );
 
