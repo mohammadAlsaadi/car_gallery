@@ -1,7 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:task1/Colors/colorTheme.dart';
+import 'package:task1/ColorsAndFont/colorTheme.dart';
 import 'package:task1/screens/auth/signup_page.dart';
 
 import 'auth/login_page.dart';
@@ -17,16 +17,16 @@ class _GetStartedState extends State<GetStarted> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: logoBlack,
+      backgroundColor: backgroundColor,
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.only(top: 180),
+            padding: const EdgeInsets.only(top: 190),
             child: Column(children: [
-              Image.asset("images/logoWithoutPG.png"),
+              Image.asset("images/logo3.png"),
               //signup
               Padding(
-                padding: const EdgeInsets.only(top: 30),
+                padding: const EdgeInsets.only(top: 80),
                 child: ElevatedButton(
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all<Color>(white),

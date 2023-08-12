@@ -1,106 +1,202 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:task1/Colors/colorTheme.dart';
+import 'package:task1/ColorsAndFont/colorTheme.dart';
+import 'package:task1/ColorsAndFont/fontStyle.dart';
 import 'package:task1/models/carModel.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
   final CarInfo car;
   const DetailPage({super.key, required this.car});
 
-//CarInfo car = CarInfo(car);
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
-//________________________________________
-    final Size screenSize = MediaQuery.of(context).size;
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double labelText = MediaQuery.of(context).size.width - 300;
-    final double fontSize = screenSize.width * 0.04;
-    double imageWidth =
-        screenWidth > 600 ? screenWidth * 0.6 : screenWidth * 0.8;
-    // final fontStyleApp =
-    //     TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold);
-    final fontStyleApp2 = TextStyle(
-        fontSize: fontSize, fontWeight: FontWeight.bold, color: button);
+    double pageWidth = MediaQuery.of(context).size.width;
+    double pageHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: appBarColor,
-        title: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 50),
-              child: Text(
-                car.carName,
-                style: TextStyle(fontSize: fontSize),
-              ),
-            )
-          ],
-        ),
-      ),
+      // appBar: AppBar(
+      //   elevation: 0,
+      //   backgroundColor: backgroundColor,
+      //   title: Padding(
+      //     padding: EdgeInsets.only(left: cardWidth * 0.25),
+      //     child: Text(
+      //       widget.car.carName,
+      //       style: appBarFont,
+      //     ),
+      //   ),
+      // ),
       body: SingleChildScrollView(
         child: Container(
           color: backgroundColor,
-          child: Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 100),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 0),
+                child: Hero(
+                  tag:
+                      'carImage_${widget.car.carImage}', // Same tag as the one used in the Home page
+                  child: SizedBox(
+                    width: pageWidth,
+                    height: pageHeight * 0.4,
+                    child: Image.network(widget.car.carImage),
+                  ), // Display the car image
+                ),
+              ),
+              Positioned(
+                top: pageHeight * 0.35,
+                left: pageWidth * 0.09,
+                right: pageWidth * 0.09,
+                child: SizedBox(
+                  width: pageWidth * 0.22,
+                  height: pageHeight * 0.06,
                   child: Image.asset(
-                    "images/car.png",
-                    width: imageWidth,
+                    "images/${widget.car.carType}.png",
                   ),
                 ),
-                const SizedBox(
-                  height: 70,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(30),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: appBarColor),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 40, bottom: 100),
-                      child: Column(
-                        children: [
-                          Row(
+              ),
+              Padding(
+                  padding: EdgeInsets.only(
+                    top: pageHeight * 0.3,
+                    // left: pageWidth * 0.04,
+                    // right: pageWidth * 0.04
+                  ),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: pageWidth,
+                        height: pageHeight * 0.65,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(40),
+                              topRight: Radius.circular(40)),
+                          color: white,
+                        ),
+                      ),
+                      Positioned(
+                        top: pageHeight * 0.14,
+                        left: pageWidth * 0.15,
+                        child: Text(
+                          widget.car.carType,
+                          style: typeOfCarFont,
+                        ),
+                      ),
+                      Positioned(
+                        top: pageHeight * 0.06,
+                        left: pageWidth * 0.7,
+                        child: Text(
+                          "${widget.car.carPrice} \$",
+                          style: priceOfCarFont,
+                        ),
+                      ),
+                      Positioned(
+                          top: pageHeight * 0.18,
+                          left: pageWidth * 0.15,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              RichText(
+                                text: TextSpan(
+                                  text: widget.car.carName,
+                                  style: subTypeOfCarFont,
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                        text: '   ${widget.car.carDate}',
+                                        style: modelOfCarDetailFont),
+                                  ],
+                                ),
+                              ),
                               SizedBox(
-                                width: labelText,
+                                height: pageHeight * 0.04,
                               ),
                               Text(
-                                'price :    ${car.carPrice}',
-                                style: fontStyleApp2,
+                                "The Renaul Arkana is a compact \n (C-segment) crossover",
+                                style: infoOfCarDetailFont,
                               )
                             ],
-                          ),
-                          const SizedBox(
-                            height: 70,
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: labelText,
-                              ),
-                              Text(
-                                'Date :    ${car.carDate}',
-                                style: fontStyleApp2,
-                              ),
-                            ],
-                          ),
-                        ],
+                          )),
+                      // Positioned(
+                      //   top: pageHeight * 0.21,
+                      //   left: pageWidth * 0.28,
+                      //   child: Text(
+                      //     widget.car.carDate,
+                      //     style: modelOfCarDetailFont,
+                      //   ),
+                      // ),
+                    ],
+                  )),
+              Padding(
+                padding: EdgeInsets.only(
+                    top: pageHeight * 0.35,
+                    left: pageWidth * 0.09,
+                    right: pageWidth * 0.09),
+                child: SizedBox(
+                  width: pageWidth * 0.22,
+                  height: pageHeight * 0.06,
+                  child: Image.asset(
+                    "images/${widget.car.carType}.png",
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                    top: pageHeight * 0.8,
+                    left: pageWidth * 0.1,
+                    right: pageWidth * 0.05),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.all<Color>(white),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(appBarColor),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
                       ),
                     ),
                   ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.only(
+                        left: 20, right: 20, top: 10, bottom: 10),
+                    child: Text(
+                      "Back to Home Page",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 }
+
+// Row(
+//                           children: [
+//                             SizedBox(width: 20),
+//                             Text(
+//                               'Price: ${widget.car.carPrice}',
+//                               style: priceOfCarFont,
+//                             ),
+//                           ],
+//                         ),
+//                         const SizedBox(height: 70),
+//                         Row(
+//                           children: [
+//                             SizedBox(width: 20),
+//                             Text(
+//                               'Date: ${widget.car.carDate}',
+//                               style: modelOfCarFont,
+//                             ),
+//                           ],
+//                         ),

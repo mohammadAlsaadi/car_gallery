@@ -1,17 +1,21 @@
 // ignore_for_file: avoid_print, file_names
 
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/models/carModel.dart';
 import 'package:task1/screens/addEdit.dart';
 import 'package:task1/screens/detailPage.dart';
-import 'package:task1/Colors/colorTheme.dart';
+import 'package:task1/ColorsAndFont/colorTheme.dart';
 import 'package:task1/screens/getStarted.dart';
 import 'package:task1/screens/profile.dart';
 import 'package:task1/utilis/constans.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
+import '../ColorsAndFont/fontStyle.dart';
 import '../models/userAuthModel.dart';
 import '../service/currentUser.dart';
 
@@ -19,7 +23,9 @@ class HomePage extends StatefulWidget {
   final String? currentUserID;
   String? userName;
   String? phone;
-  HomePage({super.key, this.currentUserID, this.userName, this.phone});
+  CarInfo? car;
+  HomePage(
+      {super.key, this.currentUserID, this.userName, this.phone, this.car});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -46,6 +52,7 @@ class _HomePageState extends State<HomePage> {
 
   List<CarInfo> _carList = [];
   bool _isLoading = true;
+  bool _isLoadingCar = true;
 
   @override
   void initState() {
@@ -104,7 +111,7 @@ class _HomePageState extends State<HomePage> {
   void _loadCars(String? userId) async {
     if (userId == null) {
       setState(() {
-        _isLoading = false;
+        _isLoadingCar = false;
       });
       return;
     }
@@ -116,7 +123,7 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       _carList = cars;
-      _isLoading = false;
+      _isLoadingCar = false;
     });
   }
 
@@ -268,7 +275,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(11.0),
+                          padding: const EdgeInsets.all(8),
                           child: ElevatedButton(
                             style: ButtonStyle(
                               foregroundColor:
@@ -352,99 +359,120 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    double cardWidth = MediaQuery.of(context).size.width - 30;
+    double cardHeight = MediaQuery.of(context).size.height - 682;
     // final currentUser = Provider.of<CurrentUser>(context);
+    double containerImageWidth = cardWidth - 70.5;
+
+    double containerImageHeight = cardHeight - 11;
+    double fogContainerHeight = containerImageHeight * 0.4;
 
     return Scaffold(
-      bottomSheet: Text(
-        'Current User: ${widget.currentUserID ?? "Not logged in"}',
-        style: const TextStyle(fontSize: 18),
-      ),
+      // bottomSheet: Text(
+      //   'Current User: ${widget.currentUserID ?? "Not logged in"}',
+      //   style: const TextStyle(fontSize: 18),
+      // ),
       drawer: Drawer(
-        shadowColor: appBarColor,
-        backgroundColor: appBarColor,
-        child: ListView(children: [
-          Padding(
-            padding: EdgeInsets.only(),
-            child: DrawerHeader(
-              padding: EdgeInsets.all(15),
-              child: Row(
-                children: [
-                  ClipOval(
-                    child: Image.asset(
-                      "images/moalsaadi.jpg",
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
+        // shadowColor: appBarColor,
+        // backgroundColor: appBarColor,
+
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment(0, -2),
+                end: Alignment(0, 0.5),
+                colors: [
+                  Color(0xff4a6741),
+                  Color(0xff3f5a36),
+                  Color(0xff374f2f),
+                  Color(0xff304529),
+                  Color(0xff22311d),
+                ]),
+          ),
+          child: ListView(children: [
+            Padding(
+              padding: EdgeInsets.only(),
+              child: DrawerHeader(
+                padding: EdgeInsets.all(15),
+                child: Row(
+                  children: [
+                    ClipOval(
+                      child: Image.asset(
+                        "images/moalsaadi.jpg",
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 50, left: 20),
-                    child: Column(
-                      children: [
-                        Text(
-                          "${widget.userName}",
-                          style: TextStyle(color: button),
-                        ),
-                        Text("${widget.phone}",
-                            style: TextStyle(color: button)),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 50, left: 20),
+                      child: Column(
+                        children: [
+                          Text(
+                            "${widget.userName}",
+                            style: TextStyle(color: button),
+                          ),
+                          Text("${widget.phone}",
+                              style: TextStyle(color: button)),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          ListTile(
-            title: const Row(
-              children: [
-                Icon(
-                  Icons.person,
-                  color: button,
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Text("My Profile", style: TextStyle(color: button)),
-              ],
+            ListTile(
+              title: const Row(
+                children: [
+                  Icon(
+                    Icons.person,
+                    color: button,
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text("My Profile", style: TextStyle(color: button)),
+                ],
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Profile(),
+                  ),
+                );
+              },
             ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const Profile(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            title: const Row(
-              children: [
-                Icon(Icons.logout_outlined, color: button),
-                SizedBox(
-                  width: 20,
-                ),
-                Text("Logout", style: TextStyle(color: button)),
-              ],
-            ),
-            onTap: () {
-              _handleLogout(context);
-              CurrentUser currentUser = CurrentUser();
-              currentUser.logout();
-            },
-          )
-        ]),
+            ListTile(
+              title: const Row(
+                children: [
+                  Icon(Icons.logout_outlined, color: button),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text("Logout", style: TextStyle(color: button)),
+                ],
+              ),
+              onTap: () {
+                _handleLogout(context);
+                CurrentUser currentUser = CurrentUser();
+                currentUser.logout();
+              },
+            )
+          ]),
+        ),
       ),
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: appBarColor,
         title: Row(
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 60),
-              child: Text("Car Show"),
+            Padding(
+              padding: EdgeInsets.only(left: 50),
+              child: Text("Antique Jo", style: appBarFont),
             ),
-            const SizedBox(
-              width: 100,
+            SizedBox(
+              width: cardWidth * 0.17,
             ),
 
             FloatingActionButton(
@@ -472,76 +500,174 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: ListView.builder(
-        itemCount: _carList.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              color: appBarColor,
-              elevation: 15,
-              child: ListTile(
-                  leading: Image.asset("images/car.png"),
-                  //title: Text(_carList[index].carName),
-                  subtitle: Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(_carList[index].carName,
-                              style: const TextStyle(color: backgroundColor)),
-                          Text(
-                            'Price : ${_carList[index].carPrice}',
-                            style: const TextStyle(color: backgroundColor),
+      body: Padding(
+        padding: EdgeInsets.only(left: cardWidth * 0.1),
+        child: ListView.builder(
+          itemCount: _carList.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                height: cardHeight,
+                width: cardWidth,
+                child: GestureDetector(
+                  onTap: () => _navigateToDetailPage(context, _carList[index]),
+                  child: Card(
+                    color: backgroundColor,
+                    child: Hero(
+                      tag: 'carImage_${_carList[index].carImage}',
+                      child: Container(
+                        child: Stack(children: [
+                          TextButton(
+                              onPressed: () => _navigateToEditPage1(
+                                  context, _carList[index]),
+                              child: const Text(
+                                "Edit",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: button),
+                                selectionColor: button,
+                              )),
+                          Container(
+                            width: containerImageWidth,
+                            height: containerImageHeight,
+                            child: Stack(
+                              children: [
+                                _isLoadingCar
+                                    ? Shimmer.fromColors(
+                                        baseColor: Colors.grey[300]!,
+                                        highlightColor: Colors.grey[100]!,
+                                        child: Container(
+                                          width: containerImageWidth,
+                                          height: containerImageHeight,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Image.network(
+                                        _carList[index].carImage,
+                                        width: containerImageWidth,
+                                        height: containerImageHeight,
+                                        fit: BoxFit.cover,
+                                      ),
+                                Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Container(
+                                    width: containerImageWidth,
+                                    height: fogContainerHeight,
+                                    alignment: Alignment.bottomCenter,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: <Color>[
+                                          Color.fromARGB(255, 71, 71, 71)
+                                              .withAlpha(210),
+                                          Color.fromARGB(31, 79, 79, 79)
+                                              .withAlpha(210),
+                                          Color.fromARGB(179, 88, 88, 88)
+                                              .withAlpha(210),
+                                        ],
+                                      ),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        Positioned(
+                                          right: containerImageWidth * 0.85,
+                                          top: fogContainerHeight * 0.03,
+                                          bottom: 50,
+                                          child: Container(
+                                            width: 40,
+                                            height: 40,
+                                            child: Image.asset(
+                                                "images/${_carList[index].carType}.png"),
+                                          ),
+                                        ),
+                                        Positioned(
+                                            right: containerImageWidth * 0.55,
+                                            top: fogContainerHeight * 0.07,
+                                            child: Align(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(_carList[index].carName,
+                                                      style: nameOfCarFont),
+                                                  Text(
+                                                      '${_carList[index].carDate}',
+                                                      style: modelOfCarFont),
+                                                ],
+                                              ),
+                                            )),
+                                        Positioned(
+                                          right: containerImageWidth * 0.05,
+                                          top: fogContainerHeight * 0.03,
+                                          child: Text(
+                                              '${_carList[index].carPrice} \$',
+                                              style: priceOfCarFont),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 0.4, right: 0.5),
+                                  child: Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(20),
+                                          ),
+                                          color: white),
+                                      width: 85,
+                                      height: 30,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 10),
+                                        child: Row(
+                                          children: [
+                                            Text("Details",
+                                                style: detailButtonFont),
+                                            const Icon(
+                                              Icons.arrow_forward_ios,
+                                              color: appBarColor,
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
-                          Text('date : ${_carList[index].carDate}',
-                              style: const TextStyle(color: backgroundColor)),
-                        ],
+                        ]),
                       ),
-                    ],
+                    ),
                   ),
-                  trailing: Stack(
-                    children: [
-                      IconButton(
-                        onPressed: () =>
-                            _navigateToEditPage1(context, _carList[index]),
-                        icon: const Icon(
-                          Icons.edit,
-                          color: button,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 50),
-                        child: IconButton(
-                          onPressed: () => _removeCar(index),
-                          icon: const Icon(
-                            Icons.delete,
-                            color: button,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  onTap: () => _navigateToDetailPage(context, _carList[index])),
-            ),
-          );
-        },
+                ),
+              ),
+            );
+          },
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "button2",
-        backgroundColor: appBarColor,
-        onPressed: _navigateToAddEditCard,
-        child: const Icon(
-          Icons.add,
-          color: button,
+      floatingActionButton: CircleAvatar(
+        maxRadius: Checkbox.width + 11,
+        backgroundColor: backgroundColor,
+        child: FloatingActionButton(
+          elevation: 30,
+          hoverColor: backgroundColor,
+          heroTag: "button2",
+          backgroundColor: appBarColor,
+          onPressed: _navigateToAddEditCard,
+          child: const Icon(
+            Icons.add,
+            color: button,
+          ),
         ),
       ),
     );
   }
-}
-
-@override
-Widget build(BuildContext context) {
-  // TODO: implement build
-  throw UnimplementedError();
 }

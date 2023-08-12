@@ -4,9 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:task1/ColorsAndFont/fontStyle.dart';
 import 'package:task1/utilis/constans.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../Colors/colorTheme.dart';
+import '../ColorsAndFont/colorTheme.dart';
 import '../models/carModel.dart';
 
 class AddEditPage extends StatefulWidget {
@@ -31,12 +32,24 @@ class _AddEditPageState extends State<AddEditPage> {
   late TextEditingController _priceController;
   late TextEditingController _dateController;
 
+  late String type;
+  late String? colorCar;
+  late int selectCarColor;
+  late int selectCarType;
   @override
   void initState() {
     if (widget.isEdit) {
       _carNameController = TextEditingController(text: widget.car!.carName);
       _priceController = TextEditingController(text: widget.car!.carPrice);
       _dateController = TextEditingController(text: widget.car!.carDate);
+      carImage = widget.car!.carImage;
+      type = widget.car!.carType;
+      colorCar = widget.car!.carColor;
+      selectedIndexForcolor = widget.car!.colorSelected!;
+      selectedIndexForType = widget.car!.typeSelected!;
+      typeSelect = true;
+      colorSelect = true;
+      fetchCarImages();
     } else {
       _carNameController = TextEditingController();
       _priceController = TextEditingController();
@@ -46,7 +59,6 @@ class _AddEditPageState extends State<AddEditPage> {
   }
 
   Future<void> fetchCarImages() async {
-    String apiKey = '';
     String searchQuery = typeImages[selectedIndexForType];
     String color = lstOfColors[selectedIndexForcolor];
     String orientation = 'landscape';
@@ -59,8 +71,7 @@ class _AddEditPageState extends State<AddEditPage> {
       final response = await dio.get(
         apiUrl,
         options: Options(headers: {
-          'Authorization':
-              'oQ9FT3s7z7MCoq2sO5HsQOmxjEZGBmjl9cmNqzBuIL10pFZJHRuuFpi2',
+          'Authorization': '',
         }),
       );
 
@@ -91,6 +102,24 @@ class _AddEditPageState extends State<AddEditPage> {
     prefs.setString('selected_image', imageUrl);
   }
 
+  //_______________save all car info
+  Future<void> saveCarList(List<CarInfo> cars) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final encodedCars = cars.map((car) => car.toJson()).toList();
+    prefs.setString('car_list', json.encode(encodedCars));
+  }
+
+  Future<List<CarInfo>> loadCarList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final carListJson = prefs.getString('car_list');
+    if (carListJson != null) {
+      final decodedCars = json.decode(carListJson) as List<dynamic>;
+      final carList = decodedCars.map((car) => CarInfo.fromJson(car)).toList();
+      return carList;
+    }
+    return [];
+  }
+
   int selectedIndexForType = -1;
   List<String> typeImages = [
     'Mercedes',
@@ -103,18 +132,18 @@ class _AddEditPageState extends State<AddEditPage> {
   List<Color> carColors = [
     const Color(0xffFF9800),
     const Color(0xffFFFFFF),
-    const Color(0xff9C27B0),
     const Color(0xff673AB7),
     const Color(0xff9E9E9E),
+    const Color(0xff9C27B0),
     const Color(0xff000000),
   ];
 
   List<String> lstOfColors = [
     "FF9800", // orange
     'FFFFFF', // White;
-    '9C27B0', // pink
     '673AB7', // blue
     '9E9E9E', // grey
+    '9C27B0', // pink
     '000000', // blak
   ];
 
@@ -128,12 +157,10 @@ class _AddEditPageState extends State<AddEditPage> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: SizedBox(
-            width: labelText,
-            child: Text(
-              widget.isEdit ? "Edit Car" : "Add Car",
-              style: GoogleFonts.poppins(),
-            )),
+        title: Center(
+          child:
+              Text(widget.isEdit ? "Edit Car" : "Add Car", style: appBarFont),
+        ),
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -149,8 +176,9 @@ class _AddEditPageState extends State<AddEditPage> {
                 child: Text(
                   maxLines: 1,
                   softWrap: false,
-                  "Select type of car : ",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  "Select type of car",
+                  style: GoogleFonts.poppins(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               SizedBox(
@@ -162,7 +190,7 @@ class _AddEditPageState extends State<AddEditPage> {
                   height: 75,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: CarType.values.length,
+                    itemCount: typeImages.length,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
@@ -171,9 +199,7 @@ class _AddEditPageState extends State<AddEditPage> {
                             if (selectedIndexForcolor != -1) {
                               fetchCarImages();
                             }
-
-                            print(
-                                "__________________________$selectedIndexForType");
+                            type = typeImages[selectedIndexForType];
                           });
                           typeSelect = true;
                         },
@@ -183,10 +209,9 @@ class _AddEditPageState extends State<AddEditPage> {
                                   Container(
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.white,
                                     ),
-                                    width: 100,
-                                    height: 100,
+                                    width: 90,
+                                    height: 90,
                                     margin: const EdgeInsets.symmetric(
                                         horizontal: 5),
                                     child: Center(
@@ -214,10 +239,9 @@ class _AddEditPageState extends State<AddEditPage> {
                             : Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white,
                                 ),
-                                width: 100,
-                                height: 100,
+                                width: 80,
+                                height: 80,
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 5),
                                 child: Center(
@@ -242,8 +266,9 @@ class _AddEditPageState extends State<AddEditPage> {
                 child: Text(
                   maxLines: 1,
                   softWrap: false,
-                  "Select color : ",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  "Select color ",
+                  style: GoogleFonts.poppins(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               SizedBox(
@@ -264,6 +289,8 @@ class _AddEditPageState extends State<AddEditPage> {
                               if (selectedIndexForType != -1) {
                                 fetchCarImages();
                               }
+                              colorCar =
+                                  lstOfColors[selectedIndexForcolor].toString();
                             });
                             colorSelect = true;
                           },
@@ -328,8 +355,9 @@ class _AddEditPageState extends State<AddEditPage> {
                   child: Text(
                     maxLines: 1,
                     softWrap: false,
-                    "Select car image :",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    "Select car image",
+                    style: GoogleFonts.poppins(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -345,38 +373,53 @@ class _AddEditPageState extends State<AddEditPage> {
                       shrinkWrap: true,
                       itemCount: imageUrls.length,
                       itemBuilder: (context, index) {
+                        bool isSelected = carImage == imageUrls[index];
                         return Container(
                           width: 160,
-                          height: 150,
+                          height: 100,
                           child: GestureDetector(
                             onTap: () {
                               setState(() {
-                                carImage = imageUrls[index];
+                                carImage = isSelected ? '' : imageUrls[index];
                               });
-                              saveSelectedImage(imageUrls[index]);
+                              saveSelectedImage(
+                                  isSelected ? '' : imageUrls[index]);
+                              print(carImage);
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: CachedNetworkImage(
-                                imageUrl: imageUrls[index],
-                                placeholder: (context, url) => Center(
-                                  child: Container(
-                                    height: 100,
-                                    width: 150,
-                                    child: Shimmer.fromColors(
-                                      baseColor: const Color.fromARGB(
-                                          255, 212, 212, 212),
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Container(
-                                        color: Colors.white,
-                                        width: 100,
-                                        height: 160,
+                              child: Container(
+                                width: 160,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Colors.green
+                                        : Colors.transparent,
+                                    width: 5.0,
+                                  ),
+                                ),
+                                child: CachedNetworkImage(
+                                  imageUrl: imageUrls[index],
+                                  placeholder: (context, url) => Center(
+                                    child: Container(
+                                      height: 100,
+                                      width: 150,
+                                      child: Shimmer.fromColors(
+                                        baseColor: const Color.fromARGB(
+                                            255, 212, 212, 212),
+                                        highlightColor: Colors.grey[100]!,
+                                        child: Container(
+                                          color: Colors.white,
+                                          width: 100,
+                                          height: 160,
+                                        ),
                                       ),
                                     ),
                                   ),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
                                 ),
-                                errorWidget: (context, url, error) =>
-                                    Icon(Icons.error),
                               ),
                             ),
                           ),
@@ -391,17 +434,18 @@ class _AddEditPageState extends State<AddEditPage> {
                   validator: (value) =>
                       value!.isEmpty ? "Enter a car name!" : null,
                   decoration: const InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          width: 3, color: appBarColor), //<-- SEE HERE
                     ),
                     labelText: "Car Name",
                     labelStyle: TextStyle(
-                      color: appBarColor,
+                      color: white,
                     ),
                     isDense: true,
                     prefixIcon: Icon(
                       Icons.car_crash,
-                      color: appBarColor,
+                      color: white,
                     ),
                   ),
                   keyboardType: TextInputType.name,
@@ -422,17 +466,18 @@ class _AddEditPageState extends State<AddEditPage> {
                     return null;
                   },
                   decoration: const InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          width: 3, color: appBarColor), //<-- SEE HERE
                     ),
                     labelText: "Car Price",
                     labelStyle: TextStyle(
-                      color: appBarColor,
+                      color: white,
                     ),
                     isDense: true,
                     prefixIcon: Icon(
                       Icons.attach_money_rounded,
-                      color: appBarColor,
+                      color: white,
                     ),
                   ),
                   keyboardType: TextInputType.number,
@@ -448,17 +493,18 @@ class _AddEditPageState extends State<AddEditPage> {
                   controller: _dateController,
                   validator: (value) => value!.isEmpty ? "Enter a date!" : null,
                   decoration: const InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          width: 3, color: appBarColor), //<-- SEE HERE
                     ),
                     labelText: "Car Model",
                     labelStyle: TextStyle(
-                      color: appBarColor,
+                      color: white,
                     ),
                     isDense: true,
                     prefixIcon: Icon(
                       Icons.date_range,
-                      color: appBarColor,
+                      color: white,
                     ),
                   ),
                   keyboardType: TextInputType.datetime,
@@ -492,12 +538,21 @@ class _AddEditPageState extends State<AddEditPage> {
                       String img = carImage;
 
                       CarInfo newCar = CarInfo(
-                        userID: currentUserId,
-                        carName: carName,
-                        carPrice: carPrice,
-                        carDate: carDate,
-                        carImage: img,
-                      );
+                          userID: currentUserId,
+                          carName: carName,
+                          carPrice: carPrice,
+                          carDate: carDate,
+                          carImage: img,
+                          carType: type,
+                          carColor: colorCar,
+                          colorSelected: selectedIndexForcolor,
+                          typeSelected: selectedIndexForType);
+                      print("_________________________$selectedIndexForType");
+
+                      List<CarInfo> existingCars = await loadCarList();
+                      existingCars.add(newCar);
+
+                      await saveCarList(existingCars);
 
                       Navigator.pop(context, newCar);
                     }

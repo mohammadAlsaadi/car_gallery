@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, unused_field, depend_on_referenced_packages
+// ignore_for_file: avoid_print, unused_field, depend_on_referenced_packages, use_build_context_synchronously
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,7 +8,7 @@ import 'package:task1/utilis/constans.dart';
 
 import 'package:uuid/uuid.dart';
 
-import '../../Colors/colorTheme.dart';
+import '../../ColorsAndFont/colorTheme.dart';
 import '../../models/userAuthModel.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 

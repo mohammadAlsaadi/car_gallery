@@ -1,7 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
-import 'package:task1/trash/addPage.dart';
 import 'package:task1/screens/getStarted.dart';
 import 'package:task1/screens/homePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';

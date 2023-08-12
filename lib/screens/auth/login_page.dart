@@ -7,9 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/service/currentUser.dart';
 
-import '../../Colors/colorTheme.dart';
+import '../../ColorsAndFont/colorTheme.dart';
 import '../../models/userAuthModel.dart';
-import '../../utilis/constans.dart';
 import '../homePage.dart';
 
 class Login extends StatefulWidget {
