@@ -14,6 +14,7 @@ import 'package:task1/screens/profile.dart';
 import 'package:task1/utilis/constans.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:dio/dio.dart';
 
 import '../ColorsAndFont/fontStyle.dart';
 import '../models/userAuthModel.dart';
@@ -108,12 +109,20 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _loadCars(String? userId) async {
-    if (userId == null) {
+  Future<void> _loadCarImage(String imageUrl) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('carImageLoaded') == "") {
       setState(() {
-        _isLoadingCar = false;
+        _isLoadingCar = true;
       });
-      return;
+    }
+  }
+
+  void _loadCars(String? userId) async {
+    if (userId != null) {
+      setState(() {
+        _isLoading = true;
+      });
     }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -123,7 +132,7 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       _carList = cars;
-      _isLoadingCar = false;
+      _isLoading = false;
     });
   }
 
@@ -359,8 +368,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    double cardWidth = MediaQuery.of(context).size.width - 30;
-    double cardHeight = MediaQuery.of(context).size.height - 682;
+    double cardWidth = MediaQuery.of(context).size.width;
+    double cardHeight = MediaQuery.of(context).size.height * 0.3;
     // final currentUser = Provider.of<CurrentUser>(context);
     double containerImageWidth = cardWidth - 70.5;
 
@@ -501,7 +510,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.only(left: cardWidth * 0.1),
+        padding: EdgeInsets.only(left: cardHeight * 0.1),
         child: ListView.builder(
           itemCount: _carList.length,
           itemBuilder: (context, index) {
@@ -518,24 +527,30 @@ class _HomePageState extends State<HomePage> {
                       tag: 'carImage_${_carList[index].carImage}',
                       child: Container(
                         child: Stack(children: [
-                          TextButton(
-                              onPressed: () => _navigateToEditPage1(
-                                  context, _carList[index]),
-                              child: const Text(
-                                "Edit",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: button),
-                                selectionColor: button,
-                              )),
+                          // TextButton(
+                          //     onPressed: () => _navigateToEditPage1(
+                          //         context, _carList[index]),
+                          //     child: const Text(
+                          //       "Edit",
+                          //       style: TextStyle(
+                          //           fontSize: 14,
+                          //           fontWeight: FontWeight.bold,
+                          //           color: button),
+                          //       selectionColor: button,
+                          //     )),
                           Container(
                             width: containerImageWidth,
                             height: containerImageHeight,
                             child: Stack(
                               children: [
-                                _isLoadingCar
-                                    ? Shimmer.fromColors(
+                                FutureBuilder<void>(
+                                  future:
+                                      _loadCarImage(_carList[index].carImage),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<void> snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Shimmer.fromColors(
                                         baseColor: Colors.grey[300]!,
                                         highlightColor: Colors.grey[100]!,
                                         child: Container(
@@ -543,13 +558,17 @@ class _HomePageState extends State<HomePage> {
                                           height: containerImageHeight,
                                           color: Colors.white,
                                         ),
-                                      )
-                                    : Image.network(
+                                      );
+                                    } else {
+                                      return Image.network(
                                         _carList[index].carImage,
                                         width: containerImageWidth,
                                         height: containerImageHeight,
                                         fit: BoxFit.cover,
-                                      ),
+                                      );
+                                    }
+                                  },
+                                ),
                                 Align(
                                   alignment: Alignment.bottomCenter,
                                   child: Container(
