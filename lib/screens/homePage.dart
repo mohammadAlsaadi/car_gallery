@@ -1,23 +1,20 @@
-// ignore_for_file: avoid_print, file_names
+// ignore_for_file: avoid_print, file_names, depend_on_referenced_packages, must_be_immutable
 
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/models/carModel.dart';
 import 'package:task1/screens/addEdit.dart';
 import 'package:task1/screens/detailPage.dart';
 import 'package:task1/ColorsAndFont/colorTheme.dart';
-import 'package:task1/screens/getStarted.dart';
 import 'package:task1/screens/profile.dart';
 import 'package:task1/utilis/constans.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import '../ColorsAndFont/fontStyle.dart';
 import '../models/userAuthModel.dart';
 import '../service/currentUser.dart';
+import '../service/homePageFunctionality.dart';
 
 class HomePage extends StatefulWidget {
   final String? currentUserID;
@@ -31,40 +28,31 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-enum SortOption {
-  date,
-  name,
-  price,
-}
-
 class _HomePageState extends State<HomePage> {
-  //___________________
-
-  void _handleLogout(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const GetStarted(),
-      ),
-      (route) => false,
-    );
-  }
-
-  List<CarInfo> _carList = [];
-  bool _isLoading = true;
-  bool _isLoadingCar = true;
-
   @override
   void initState() {
     super.initState();
-    _loadCars(shardUserId);
-    _loadUserData();
+    _loadUserData2();
+  }
+
+  Future<void> _loadCarData() async {
+    if (shardUserId != null) {
+      _loadUser(shardUserId);
+      await _loadCars(shardUserId);
+      setState(() {
+        isLoadingCarData = false;
+      });
+    } else {
+      setState(() {
+        isLoadingCarData = true;
+      });
+    }
   }
 
   void _loadUser(String? userId) async {
     if (userId == null) {
       setState(() {
-        _isLoading = false;
+        isLoadingUserData = true;
       });
       return;
     }
@@ -75,7 +63,6 @@ class _HomePageState extends State<HomePage> {
     List<UserAuth> users =
         userData.map((user) => UserAuth.fromJson(user)).toList();
 
-    // Find the user with the current user ID and update the user information
     UserAuth? currentUser;
     for (var user in users) {
       if (user.uid == userId) {
@@ -88,30 +75,29 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         widget.userName = currentUser?.name;
         widget.phone = currentUser?.phoneNumber;
-        _isLoading = false;
+        isLoadingUserData = false;
       });
     } else {
       setState(() {
-        _isLoading = false;
+        isLoadingUserData = true;
       });
     }
   }
 
-  void _loadUserData() async {
+  void _loadUserData2() async {
     if (widget.currentUserID != null) {
-      // ignore: await_only_futures
       _loadUser(widget.currentUserID);
     } else {
       setState(() {
-        _isLoading = false;
+        isLoadingUserData = false;
       });
     }
   }
 
-  void _loadCars(String? userId) async {
+  Future<void> _loadCars(String? userId) async {
     if (userId == null) {
       setState(() {
-        _isLoadingCar = false;
+        isLoadingCarData = false;
       });
       return;
     }
@@ -122,8 +108,8 @@ class _HomePageState extends State<HomePage> {
     List<CarInfo> cars = carData.map((car) => CarInfo.fromJson(car)).toList();
 
     setState(() {
-      _carList = cars;
-      _isLoadingCar = false;
+      carList = cars;
+      isLoadingCarData = false;
     });
   }
 
@@ -134,7 +120,6 @@ class _HomePageState extends State<HomePage> {
     List<UserAuth> users =
         userData.map((user) => UserAuth.fromJson(user)).toList();
 
-    // Find the user with the current user ID and update the user information
     int index = users.indexWhere((user) => user.uid == shardUserId);
     if (index != -1) {
       users[index].name = widget.userName ?? '';
@@ -144,59 +129,91 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _saveCars() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String jsonCars = jsonEncode(_carList);
-    prefs.setString('cars_${shardUserId}',
-        jsonCars); // Use the current user ID to save their cars
-  }
-
   void _removeCar(int index) {
     setState(() {
-      _carList.removeAt(index);
+      carList.removeAt(index);
     });
-    _saveCars(); // Update the list stored in shared_preferences after removal
+    SharedFunction.saveCars();
   }
 
   void _navigateToDetailPage(BuildContext context, CarInfo car) async {
-    final updatedCar = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DetailPage(
-          car: car,
-        ),
-      ),
-    );
-
-    if (updatedCar != null && updatedCar is CarInfo) {
-      // Find the index of the edited car and update the list
-      int index = _carList.indexWhere((element) => element == car);
-      if (index != -1) {
-        setState(() {
-          _carList[index] = updatedCar;
-        });
-        _saveCars(); // Save the updated list of cars to storage
-      }
-    }
+    Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return DetailPage(car: car);
+      },
+      transitionDuration: const Duration(milliseconds: 850),
+    ));
   }
-  // Default selected option
 
   SortOption? selectedOption = SortOption.date;
 
   void _sortCards() {
     if (selectedOption == SortOption.date) {
       setState(() {
-        _carList.sort((a, b) => a.carDate.compareTo(b.carDate));
+        carList.sort((a, b) => a.carDate.compareTo(b.carDate));
       });
     } else if (selectedOption == SortOption.name) {
       setState(() {
-        _carList.sort((a, b) => a.carName.compareTo(b.carName));
+        carList.sort((a, b) => a.carName.compareTo(b.carName));
       });
     } else if (selectedOption == SortOption.price) {
       setState(() {
-        _carList.sort((a, b) => a.carPrice.compareTo(b.carPrice));
+        carList.sort((a, b) => a.carPrice.compareTo(b.carPrice));
       });
     }
+  }
+
+  void _showCardOptionsDialog(BuildContext context, CarInfo car, int index) {
+    showModalBottomSheet(
+      backgroundColor: backgroundColor,
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20), bottom: Radius.circular(30)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Container(
+            color: white,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: Container(
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(7)),
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.pop(context);
+                        _navigateToEditPage1(context, car);
+                      },
+                      title: Center(
+                        child: Text("Edit", style: cardOption),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  color: backgroundColor,
+                  height: 10,
+                ),
+                ListTile(
+                  onTap: () {
+                    Navigator.pop(context);
+                    _removeCar(index);
+                  },
+                  title: Center(
+                    child: Text("Delete", style: cardOption),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   //__________________++++++++++++++___________________
@@ -216,14 +233,14 @@ class _HomePageState extends State<HomePage> {
                       child: Center(
                         child: Text(
                           'Choose One',
-                          style: TextStyle(color: button, fontSize: 17),
+                          style: TextStyle(color: buttonWhite, fontSize: 17),
                         ),
                       ),
                     ),
                     RadioListTile<SortOption>(
                       title: const Text(
                         'by Date',
-                        style: TextStyle(color: button),
+                        style: TextStyle(color: buttonWhite),
                       ),
                       value: SortOption.date,
                       groupValue: selectedOption,
@@ -232,12 +249,12 @@ class _HomePageState extends State<HomePage> {
                           selectedOption = value;
                         });
                       },
-                      activeColor: button,
+                      activeColor: buttonWhite,
                     ),
                     RadioListTile<SortOption>(
                       title: const Text(
                         'by Car Name',
-                        style: TextStyle(color: button),
+                        style: TextStyle(color: buttonWhite),
                       ),
                       value: SortOption.name,
                       groupValue: selectedOption,
@@ -246,12 +263,12 @@ class _HomePageState extends State<HomePage> {
                           selectedOption = value;
                         });
                       },
-                      activeColor: button,
+                      activeColor: buttonWhite,
                     ),
                     RadioListTile<SortOption>(
                       title: const Text(
                         'by Price',
-                        style: TextStyle(color: button),
+                        style: TextStyle(color: buttonWhite),
                       ),
                       value: SortOption.price,
                       groupValue: selectedOption,
@@ -260,7 +277,7 @@ class _HomePageState extends State<HomePage> {
                           selectedOption = value;
                         });
                       },
-                      activeColor: button,
+                      activeColor: buttonWhite,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -271,17 +288,17 @@ class _HomePageState extends State<HomePage> {
                           },
                           child: const Text(
                             'Cancel',
-                            style: TextStyle(color: button),
+                            style: TextStyle(color: buttonWhite),
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(5),
                           child: ElevatedButton(
                             style: ButtonStyle(
                               foregroundColor:
                                   MaterialStateProperty.all<Color>(white),
                               backgroundColor:
-                                  MaterialStateProperty.all<Color>(button),
+                                  MaterialStateProperty.all<Color>(buttonWhite),
                               shape: MaterialStateProperty.all<
                                   RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
@@ -297,7 +314,7 @@ class _HomePageState extends State<HomePage> {
                                 : null,
                             child: const Padding(
                               padding: EdgeInsets.only(
-                                  left: 10, right: 10, top: 5, bottom: 5),
+                                  left: 0, right: 10, top: 5, bottom: 5),
                               child: Text(
                                 "Sort",
                                 style: TextStyle(
@@ -329,9 +346,9 @@ class _HomePageState extends State<HomePage> {
 
     if (newCar != null && newCar is CarInfo) {
       setState(() {
-        _carList.add(newCar);
+        carList.add(newCar);
       });
-      _saveCars();
+      SharedFunction.saveCars();
       _saveUser(); // Save the user information when adding a new car
     }
   }
@@ -348,10 +365,10 @@ class _HomePageState extends State<HomePage> {
     if (updatedCar != null && updatedCar is CarInfo) {
       // Update the car in the list
       setState(() {
-        int index = _carList.indexWhere((element) => element == car);
+        int index = carList.indexWhere((element) => element == car);
         if (index != -1) {
-          _carList[index] = updatedCar;
-          _saveCars(); // Save the updated list of cars to storage
+          carList[index] = updatedCar;
+          SharedFunction.saveCars(); // Save the updated list of cars to storage
         }
       });
     }
@@ -359,8 +376,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    double cardWidth = MediaQuery.of(context).size.width - 30;
-    double cardHeight = MediaQuery.of(context).size.height - 682;
+    double cardWidth = MediaQuery.of(context).size.width * 0.97;
+    double cardHeight = MediaQuery.of(context).size.height * 0.26;
     // final currentUser = Provider.of<CurrentUser>(context);
     double containerImageWidth = cardWidth - 70.5;
 
@@ -390,35 +407,32 @@ class _HomePageState extends State<HomePage> {
                 ]),
           ),
           child: ListView(children: [
-            Padding(
-              padding: EdgeInsets.only(),
-              child: DrawerHeader(
-                padding: EdgeInsets.all(15),
-                child: Row(
-                  children: [
-                    ClipOval(
-                      child: Image.asset(
-                        "images/moalsaadi.jpg",
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      ),
+            DrawerHeader(
+              padding: const EdgeInsets.all(15),
+              child: Row(
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      "images/moalsaadi.jpg",
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 50, left: 20),
-                      child: Column(
-                        children: [
-                          Text(
-                            "${widget.userName}",
-                            style: TextStyle(color: button),
-                          ),
-                          Text("${widget.phone}",
-                              style: TextStyle(color: button)),
-                        ],
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 50, left: 20),
+                    child: Column(
+                      children: [
+                        Text(
+                          "${widget.userName}",
+                          style: const TextStyle(color: buttonWhite),
+                        ),
+                        Text("${widget.phone}",
+                            style: const TextStyle(color: buttonWhite)),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             ListTile(
@@ -426,12 +440,9 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Icon(
                     Icons.person,
-                    color: button,
+                    color: buttonWhite,
                   ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Text("My Profile", style: TextStyle(color: button)),
+                  Text("My Profile", style: TextStyle(color: buttonWhite)),
                 ],
               ),
               onTap: () {
@@ -446,15 +457,15 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               title: const Row(
                 children: [
-                  Icon(Icons.logout_outlined, color: button),
+                  Icon(Icons.logout_outlined, color: buttonWhite),
                   SizedBox(
                     width: 20,
                   ),
-                  Text("Logout", style: TextStyle(color: button)),
+                  Text("Logout", style: TextStyle(color: buttonWhite)),
                 ],
               ),
               onTap: () {
-                _handleLogout(context);
+                SharedFunction.handleLogout(context);
                 CurrentUser currentUser = CurrentUser();
                 currentUser.logout();
               },
@@ -468,11 +479,11 @@ class _HomePageState extends State<HomePage> {
         title: Row(
           children: [
             Padding(
-              padding: EdgeInsets.only(left: 50),
+              padding: EdgeInsets.only(left: cardWidth * 0.17),
               child: Text("Antique Jo", style: appBarFont),
             ),
             SizedBox(
-              width: cardWidth * 0.17,
+              width: cardWidth * 0.12,
             ),
 
             FloatingActionButton(
@@ -484,7 +495,7 @@ class _HomePageState extends State<HomePage> {
               },
               child: const Icon(
                 Icons.sort,
-                color: button,
+                color: buttonWhite,
               ),
             ),
             // Padding(
@@ -501,55 +512,64 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.only(left: cardWidth * 0.1),
-        child: ListView.builder(
-          itemCount: _carList.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                height: cardHeight,
-                width: cardWidth,
-                child: GestureDetector(
-                  onTap: () => _navigateToDetailPage(context, _carList[index]),
-                  child: Card(
-                    color: backgroundColor,
-                    child: Hero(
-                      tag: 'carImage_${_carList[index].carImage}',
-                      child: Container(
+        padding: const EdgeInsets.only(left: 28),
+        child: FutureBuilder(
+          future: _loadCarData(),
+          builder: (context, snapshot) {
+            return ListView.builder(
+              itemCount: carList.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    height: cardHeight,
+                    width: cardWidth,
+                    child: GestureDetector(
+                      onLongPress: () => _showCardOptionsDialog(
+                          context, carList[index], index),
+                      onTap: () =>
+                          _navigateToDetailPage(context, carList[index]),
+                      child: Card(
+                        color: backgroundColor,
                         child: Stack(children: [
-                          TextButton(
-                              onPressed: () => _navigateToEditPage1(
-                                  context, _carList[index]),
-                              child: const Text(
-                                "Edit",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: button),
-                                selectionColor: button,
-                              )),
-                          Container(
+                          // TextButton(
+                          //     onPressed: () => _navigateToEditPage1(
+                          //         context, _carList[index]),
+                          //     child: const Text(
+                          //       "Edit",
+                          //       style: TextStyle(
+                          //           fontSize: 14,
+                          //           fontWeight: FontWeight.bold,
+                          //           color: button),
+                          //       selectionColor: button,
+                          //     )),
+                          SizedBox(
                             width: containerImageWidth,
                             height: containerImageHeight,
                             child: Stack(
                               children: [
-                                _isLoadingCar
-                                    ? Shimmer.fromColors(
-                                        baseColor: Colors.grey[300]!,
-                                        highlightColor: Colors.grey[100]!,
-                                        child: Container(
-                                          width: containerImageWidth,
-                                          height: containerImageHeight,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : Image.network(
-                                        _carList[index].carImage,
+                                Hero(
+                                  tag: 'carImage_${carList[index].carImage}',
+                                  child: CachedNetworkImage(
+                                    imageUrl: carList[index].carImage,
+                                    width: containerImageWidth,
+                                    height: containerImageHeight,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        Shimmer.fromColors(
+                                      baseColor: const Color.fromARGB(
+                                          255, 177, 177, 177),
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
                                         width: containerImageWidth,
                                         height: containerImageHeight,
-                                        fit: BoxFit.cover,
+                                        color: Colors.white,
                                       ),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.error),
+                                  ),
+                                ),
                                 Align(
                                   alignment: Alignment.bottomCenter,
                                   child: Container(
@@ -561,11 +581,11 @@ class _HomePageState extends State<HomePage> {
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
                                         colors: <Color>[
-                                          Color.fromARGB(255, 71, 71, 71)
+                                          const Color.fromARGB(255, 71, 71, 71)
                                               .withAlpha(210),
-                                          Color.fromARGB(31, 79, 79, 79)
+                                          const Color.fromARGB(31, 79, 79, 79)
                                               .withAlpha(210),
-                                          Color.fromARGB(179, 88, 88, 88)
+                                          const Color.fromARGB(179, 88, 88, 88)
                                               .withAlpha(210),
                                         ],
                                       ),
@@ -576,11 +596,11 @@ class _HomePageState extends State<HomePage> {
                                           right: containerImageWidth * 0.85,
                                           top: fogContainerHeight * 0.03,
                                           bottom: 50,
-                                          child: Container(
+                                          child: SizedBox(
                                             width: 40,
                                             height: 40,
                                             child: Image.asset(
-                                                "images/${_carList[index].carType}.png"),
+                                                "images/${carList[index].carType}.png"),
                                           ),
                                         ),
                                         Positioned(
@@ -591,10 +611,9 @@ class _HomePageState extends State<HomePage> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  Text(_carList[index].carName,
+                                                  Text(carList[index].carName,
                                                       style: nameOfCarFont),
-                                                  Text(
-                                                      '${_carList[index].carDate}',
+                                                  Text(carList[index].carDate,
                                                       style: modelOfCarFont),
                                                 ],
                                               ),
@@ -603,7 +622,7 @@ class _HomePageState extends State<HomePage> {
                                           right: containerImageWidth * 0.05,
                                           top: fogContainerHeight * 0.03,
                                           child: Text(
-                                              '${_carList[index].carPrice} \$',
+                                              '${carList[index].carPrice} \$',
                                               style: priceOfCarFont),
                                         )
                                       ],
@@ -624,15 +643,22 @@ class _HomePageState extends State<HomePage> {
                                       width: 85,
                                       height: 30,
                                       child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
+                                        padding: const EdgeInsets.only(left: 0),
                                         child: Row(
                                           children: [
-                                            Text("Details",
-                                                style: detailButtonFont),
-                                            const Icon(
-                                              Icons.arrow_forward_ios,
-                                              color: appBarColor,
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: cardWidth * 0.02),
+                                              child: Text("Details",
+                                                  style: detailButtonFont),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: cardWidth * 0.02),
+                                              child: const Icon(
+                                                Icons.arrow_forward_ios,
+                                                color: appBarColor,
+                                              ),
                                             )
                                           ],
                                         ),
@@ -647,8 +673,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
         ),
@@ -664,7 +690,7 @@ class _HomePageState extends State<HomePage> {
           onPressed: _navigateToAddEditCard,
           child: const Icon(
             Icons.add,
-            color: button,
+            color: buttonWhite,
           ),
         ),
       ),

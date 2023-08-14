@@ -38,7 +38,8 @@ class _ProfileState extends State<Profile> {
               padding: EdgeInsets.only(top: 30),
               child: Text(
                 " Mohammad alsaadi",
-                style: TextStyle(fontWeight: FontWeight.bold, color: button),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: buttonWhite),
               ),
             ),
             const SizedBox(
@@ -47,7 +48,7 @@ class _ProfileState extends State<Profile> {
             ElevatedButton(
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all<Color>(white),
-                backgroundColor: MaterialStateProperty.all<Color>(button),
+                backgroundColor: MaterialStateProperty.all<Color>(buttonWhite),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
@@ -80,7 +81,7 @@ class _ProfileState extends State<Profile> {
             ElevatedButton(
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all<Color>(white),
-                backgroundColor: MaterialStateProperty.all<Color>(button),
+                backgroundColor: MaterialStateProperty.all<Color>(buttonWhite),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
@@ -113,7 +114,7 @@ class _ProfileState extends State<Profile> {
             ElevatedButton(
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all<Color>(white),
-                backgroundColor: MaterialStateProperty.all<Color>(button),
+                backgroundColor: MaterialStateProperty.all<Color>(buttonWhite),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),

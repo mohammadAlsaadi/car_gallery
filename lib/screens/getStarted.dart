@@ -54,7 +54,7 @@ class _GetStartedState extends State<GetStarted> {
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: button),
+                          color: buttonWhite),
                     ),
                   ),
                 ),
@@ -65,7 +65,8 @@ class _GetStartedState extends State<GetStarted> {
                 child: ElevatedButton(
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all<Color>(white),
-                    backgroundColor: MaterialStateProperty.all<Color>(button),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(buttonWhite),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),

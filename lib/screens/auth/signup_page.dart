@@ -1,17 +1,13 @@
 // ignore_for_file: avoid_print, unused_field, depend_on_referenced_packages, use_build_context_synchronously
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:task1/screens/homePage.dart';
 import 'package:task1/utilis/constans.dart';
-
 import 'package:uuid/uuid.dart';
-
 import '../../ColorsAndFont/colorTheme.dart';
 import '../../models/userAuthModel.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-
 import '../../service/currentUser.dart';
 
 FocusNode passwordFocusNode = FocusNode();
@@ -55,15 +51,13 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _phoneNumberController = TextEditingController();
   bool phoneHasError = false;
 
-  //_____________________________password __________________________________
+  //_____________________________validation Bool __________________________________
   bool _isPasswordValid = true;
-
   bool capitalLetterValid = false;
   bool specialCharacterValid = false;
   bool numberValid = false;
-
+//_______________________________pass case
   bool isPasswordValid(String password) {
-    // Password must contain at least one uppercase letter, one special character, and one digit.
     RegExp uppercaseRegex = RegExp(r'[A-Z]');
     RegExp specialCharRegex = RegExp(r'[!@#$%^&*]');
     RegExp digitRegex = RegExp(r'\d');
@@ -78,10 +72,6 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _nameController = TextEditingController();
   bool _isObsecure = true;
   bool _isObsecure2 = true;
-  // void dispose() {
-  //   passwordFocusNode.dispose();
-  //   super.dispose();
-  // }
 
   //____________________vadidate email_________________________________
   String? _validateEmail(var value) {
@@ -89,30 +79,22 @@ class _SignUpState extends State<SignUp> {
       return 'Email required';
     }
 
-    // Check if the email contains the "@gmail.com" domain
     if (!value.contains("@gmail.com")) {
       return 'Invalid email format. It must be like XX@XX.com';
     }
 
-    return null; // Return null if the email is valid
+    return null;
   }
 
-  //_________________pass reqexp
-
-  // bool isPasswordValid(String password) {
-  //   // Password must contain at least one uppercase letter, one special character, and one digit.
-  //   RegExp regex = RegExp(r'^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$');
-  //   return regex.hasMatch(password);
-  // }
-
   String generateUID() {
-    // ignore: prefer_const_constructors
-    final uuid = Uuid();
+    const uuid = Uuid();
     return uuid.v4();
   }
 
   @override
   Widget build(BuildContext context) {
+    double pageWidth = MediaQuery.of(context).size.width;
+    double pageHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
@@ -133,11 +115,11 @@ class _SignUpState extends State<SignUp> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(
-                  height: 30,
+                SizedBox(
+                  height: pageHeight * 0.03,
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(pageWidth * 0.05),
                   child: TextFormField(
                     controller: _emailController,
                     validator: _validateEmail,
@@ -167,8 +149,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(
-                      top: 20, left: 20, right: 20, bottom: 10),
+                  padding: EdgeInsets.all(pageWidth * 0.05),
                   child: TextFormField(
                     controller: _passwordController,
                     focusNode: passwordFocusNode,
@@ -225,15 +206,17 @@ class _SignUpState extends State<SignUp> {
                 ),
                 passwordFocusNode.hasFocus
                     ? Padding(
-                        padding: const EdgeInsets.only(left: 30, right: 30),
+                        padding: EdgeInsets.only(
+                            left: pageWidth * 0.06, right: pageWidth * 0.06),
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             color: const Color.fromARGB(255, 236, 236, 236),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: pageWidth * 0.05),
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(pageWidth * 0.01),
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Column(
@@ -274,7 +257,7 @@ class _SignUpState extends State<SignUp> {
                       )
                     : Container(),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(pageWidth * 0.05),
                   child: TextFormField(
                     controller: _confpasswordController,
                     obscureText: _isObsecure2,
@@ -325,7 +308,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(pageWidth * 0.05),
                   child: TextFormField(
                     controller: _nameController,
                     validator: (value) =>
@@ -356,7 +339,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(pageWidth * 0.05),
                   child: IntlPhoneField(
                     dropdownIcon: const Icon(
                       Icons.arrow_drop_down,
@@ -373,7 +356,7 @@ class _SignUpState extends State<SignUp> {
                           phoneHasError = false;
                         });
                       }
-                      return null; // Return null if the input is valid
+                      return null;
                     },
                     initialCountryCode: "JO",
                     focusNode: focusNode,
@@ -407,7 +390,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 0, top: 20),
+                  padding: EdgeInsets.only(top: pageHeight * 0.01),
                   child: ElevatedButton(
                     style: ButtonStyle(
                       foregroundColor: MaterialStateProperty.all<Color>(white),

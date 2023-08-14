@@ -1,6 +1,7 @@
+// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, avoid_print, use_build_context_synchronously, file_names
+
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -96,7 +97,6 @@ class _AddEditPageState extends State<AddEditPage> {
 
   late String carImage = '';
 
-  // Save the selected image URL to shared_preferences
   Future<void> saveSelectedImage(String imageUrl) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('selected_image', imageUrl);
@@ -130,21 +130,23 @@ class _AddEditPageState extends State<AddEditPage> {
   ];
   int selectedIndexForcolor = -1;
   List<Color> carColors = [
-    const Color(0xffFF9800),
-    const Color(0xffFFFFFF),
-    const Color(0xff673AB7),
-    const Color(0xff9E9E9E),
-    const Color(0xff9C27B0),
     const Color(0xff000000),
+    const Color(0xff9E9E9E),
+    const Color(0xffFFFFFF),
+    const Color(0xffFF9800),
+    const Color(0xff673AB7),
+    const Color(0xff9C27B0),
   ];
 
   List<String> lstOfColors = [
-    "FF9800", // orange
-    'FFFFFF', // White;
-    '673AB7', // blue
-    '9E9E9E', // grey
-    '9C27B0', // pink
     '000000', // blak
+    '9E9E9E', // grey
+    'FFFFFF', // White;
+    "FF9800", // orange
+
+    '673AB7', // blue
+
+    '9C27B0', // pink
   ];
 
   bool typeSelect = false;
@@ -152,9 +154,10 @@ class _AddEditPageState extends State<AddEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double labelText = MediaQuery.of(context).size.width - 300;
+    double pageWidth = MediaQuery.of(context).size.width;
+    double pageHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: white,
       appBar: AppBar(
         backgroundColor: appBarColor,
         title: Center(
@@ -169,23 +172,10 @@ class _AddEditPageState extends State<AddEditPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: 20,
+                height: pageHeight * 0.02,
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Text(
-                  maxLines: 1,
-                  softWrap: false,
-                  "Select type of car",
-                  style: GoogleFonts.poppins(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: EdgeInsets.all(pageHeight * 0.013),
                 child: SizedBox(
                   height: 75,
                   child: ListView.builder(
@@ -207,23 +197,23 @@ class _AddEditPageState extends State<AddEditPage> {
                             ? Stack(
                                 children: [
                                   Container(
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
                                     ),
-                                    width: 90,
-                                    height: 90,
+                                    width: 100,
+                                    height: 100,
                                     margin: const EdgeInsets.symmetric(
-                                        horizontal: 5),
+                                        horizontal: 4),
                                     child: Center(
                                       child: Image.asset(
                                         'images/${typeImages[index]}.png',
                                         fit: BoxFit.cover,
-                                        width: 70,
-                                        height: 70,
+                                        width: 65,
+                                        height: 65,
                                       ),
                                     ),
                                   ),
-                                  Positioned(
+                                  const Positioned(
                                       right: 20,
                                       bottom: 45,
                                       child: SizedBox(
@@ -237,19 +227,19 @@ class _AddEditPageState extends State<AddEditPage> {
                                 ],
                               )
                             : Container(
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
                                 ),
-                                width: 80,
-                                height: 80,
+                                width: 100,
+                                height: 100,
                                 margin:
-                                    const EdgeInsets.symmetric(horizontal: 5),
+                                    const EdgeInsets.symmetric(horizontal: 4),
                                 child: Center(
                                   child: Image.asset(
                                     'images/${typeImages[index]}.png',
                                     fit: BoxFit.cover,
-                                    width: 73,
-                                    height: 73,
+                                    width: 65,
+                                    height: 65,
                                   ),
                                 ),
                               ),
@@ -259,23 +249,10 @@ class _AddEditPageState extends State<AddEditPage> {
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: pageHeight * 0.02,
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Text(
-                  maxLines: 1,
-                  softWrap: false,
-                  "Select color ",
-                  style: GoogleFonts.poppins(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: EdgeInsets.all(pageHeight * 0.013),
                 child: SizedBox(
                   height: 65,
                   child: ListView.builder(
@@ -300,12 +277,14 @@ class _AddEditPageState extends State<AddEditPage> {
                                     Container(
                                       width: 100,
                                       height: 100,
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 4),
-                                      decoration: BoxDecoration(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 4),
+                                      decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
                                       ),
                                       child: Container(
+                                        width: 65,
+                                        height: 65,
                                         decoration: BoxDecoration(
                                             border:
                                                 Border.all(color: Colors.grey),
@@ -313,7 +292,7 @@ class _AddEditPageState extends State<AddEditPage> {
                                             color: carColors[index]),
                                       ),
                                     ),
-                                    Positioned(
+                                    const Positioned(
                                         right: 20,
                                         bottom: 35,
                                         child: SizedBox(
@@ -329,11 +308,14 @@ class _AddEditPageState extends State<AddEditPage> {
                               : Container(
                                   width: 100,
                                   height: 100,
-                                  margin: EdgeInsets.symmetric(horizontal: 4),
-                                  decoration: BoxDecoration(
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  decoration: const BoxDecoration(
                                     shape: BoxShape.circle,
                                   ),
                                   child: Container(
+                                    width: 65,
+                                    height: 65,
                                     decoration: BoxDecoration(
                                       border: Border.all(color: Colors.grey),
                                       shape: BoxShape.circle,
@@ -346,23 +328,7 @@ class _AddEditPageState extends State<AddEditPage> {
                 ),
               ),
               SizedBox(
-                height: 20,
-              ),
-              Visibility(
-                visible: typeSelect && colorSelect,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 30),
-                  child: Text(
-                    maxLines: 1,
-                    softWrap: false,
-                    "Select car image",
-                    style: GoogleFonts.poppins(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20,
+                height: pageHeight * 0.02,
               ),
               Visibility(
                 visible: typeSelect && colorSelect,
@@ -374,7 +340,7 @@ class _AddEditPageState extends State<AddEditPage> {
                       itemCount: imageUrls.length,
                       itemBuilder: (context, index) {
                         bool isSelected = carImage == imageUrls[index];
-                        return Container(
+                        return SizedBox(
                           width: 160,
                           height: 100,
                           child: GestureDetector(
@@ -387,7 +353,7 @@ class _AddEditPageState extends State<AddEditPage> {
                               print(carImage);
                             },
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: EdgeInsets.all(pageHeight * 0.013),
                               child: Container(
                                 width: 160,
                                 height: 100,
@@ -402,7 +368,7 @@ class _AddEditPageState extends State<AddEditPage> {
                                 child: CachedNetworkImage(
                                   imageUrl: imageUrls[index],
                                   placeholder: (context, url) => Center(
-                                    child: Container(
+                                    child: SizedBox(
                                       height: 100,
                                       width: 150,
                                       child: Shimmer.fromColors(
@@ -418,7 +384,7 @@ class _AddEditPageState extends State<AddEditPage> {
                                     ),
                                   ),
                                   errorWidget: (context, url, error) =>
-                                      Icon(Icons.error),
+                                      const Icon(Icons.error),
                                 ),
                               ),
                             ),
@@ -428,24 +394,34 @@ class _AddEditPageState extends State<AddEditPage> {
                     )),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(pageHeight * 0.013),
+                child: Text(
+                  "Details ",
+                  style: infoOfCarDetailFont,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(pageHeight * 0.02),
                 child: TextFormField(
                   controller: _carNameController,
                   validator: (value) =>
                       value!.isEmpty ? "Enter a car name!" : null,
-                  decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          width: 3, color: appBarColor), //<-- SEE HERE
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     labelText: "Car Name",
-                    labelStyle: TextStyle(
-                      color: white,
+                    labelStyle: const TextStyle(
+                      color: appBarColor,
                     ),
                     isDense: true,
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.car_crash,
-                      color: white,
+                      color: appBarColor,
                     ),
                   ),
                   keyboardType: TextInputType.name,
@@ -456,7 +432,7 @@ class _AddEditPageState extends State<AddEditPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(pageHeight * 0.02),
                 child: TextFormField(
                   controller: _priceController,
                   validator: (value) {
@@ -465,19 +441,22 @@ class _AddEditPageState extends State<AddEditPage> {
                     }
                     return null;
                   },
-                  decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          width: 3, color: appBarColor), //<-- SEE HERE
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     labelText: "Car Price",
-                    labelStyle: TextStyle(
-                      color: white,
+                    labelStyle: const TextStyle(
+                      color: appBarColor,
                     ),
                     isDense: true,
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.attach_money_rounded,
-                      color: white,
+                      color: appBarColor,
                     ),
                   ),
                   keyboardType: TextInputType.number,
@@ -488,23 +467,26 @@ class _AddEditPageState extends State<AddEditPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(pageHeight * 0.02),
                 child: TextFormField(
                   controller: _dateController,
                   validator: (value) => value!.isEmpty ? "Enter a date!" : null,
-                  decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          width: 3, color: appBarColor), //<-- SEE HERE
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     labelText: "Car Model",
-                    labelStyle: TextStyle(
-                      color: white,
+                    labelStyle: const TextStyle(
+                      color: appBarColor,
                     ),
                     isDense: true,
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.date_range,
-                      color: white,
+                      color: appBarColor,
                     ),
                   ),
                   keyboardType: TextInputType.datetime,
@@ -515,7 +497,7 @@ class _AddEditPageState extends State<AddEditPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 150),
+                padding: EdgeInsets.only(left: pageWidth * 0.35),
                 child: ElevatedButton(
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all<Color>(white),
@@ -565,7 +547,7 @@ class _AddEditPageState extends State<AddEditPage> {
                 ),
               ),
               SizedBox(
-                height: 50,
+                height: pageHeight * 0.02,
               ),
             ],
           ),

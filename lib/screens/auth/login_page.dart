@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/service/currentUser.dart';
 
 import '../../ColorsAndFont/colorTheme.dart';
+import '../../ColorsAndFont/fontStyle.dart';
 import '../../models/userAuthModel.dart';
 import '../homePage.dart';
 
@@ -58,14 +59,17 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    double pageWidth = MediaQuery.of(context).size.width;
+    double pageHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: const Row(
+        title: Row(
           children: [
             Padding(
-              padding: EdgeInsets.only(left: 90),
-              child: Text(
+              padding: EdgeInsets.only(left: pageWidth * 0.2),
+              child: const Text(
                 "Login",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
@@ -78,11 +82,11 @@ class _LoginState extends State<Login> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(
-                  height: 70,
+                SizedBox(
+                  height: pageHeight * 0.1,
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(pageHeight * 0.02),
                   child: TextFormField(
                     controller: _emailController,
                     validator: _validateEmail,
@@ -112,7 +116,7 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(pageHeight * 0.02),
                   child: TextFormField(
                     controller: _passwordController,
                     obscureText: _isObsecure,
@@ -157,7 +161,7 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 0, top: 70),
+                  padding: EdgeInsets.only(top: pageHeight * 0.09),
                   child: ElevatedButton(
                     style: ButtonStyle(
                       foregroundColor: MaterialStateProperty.all<Color>(white),
@@ -185,6 +189,23 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.only(left: pageWidth * 0.44),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Don't have an account ?",
+                        style: loginText,
+                      ),
+                      TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            "Register",
+                            style: loginFontButton,
+                          ))
+                    ],
+                  ),
+                )
               ],
             ),
           )),
